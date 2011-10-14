@@ -2,7 +2,7 @@
 
 ### About WOT
 
-Main distributable code base for the Workforce of Tomorrow Initiative.  Contains relevant software deliverables for the project.  This includes all visualizations and MapReduce jars created during the effort that run within the Infinit.e platform.
+Main distributable code base for the Workforce of Tomorrow Initiative.  Contains relevant software deliverables for th$
 
 ### Folder Structure
 
