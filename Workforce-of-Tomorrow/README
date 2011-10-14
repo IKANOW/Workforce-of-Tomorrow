@@ -1,0 +1,19 @@
+## Overview
+
+### About WOT
+
+Main distributable code base for the Workforce of Tomorrow Initiative.  Contains relevant software deliverables for the project.  This includes all visualizations and MapReduce jars created during the effort that run within the Infinit.e platform.
+
+### Folder Structure
+
+--> Master = Main Project Branch
+------> widgets = Contains the finalized Shockwave Files
+------> mrjars = Contains the finalized Map Reduce Jars
+------> docs = Contains relevant documentation
+--> README = Read Me information pertaining to the project
+
+### Compatibility
+
+### Documentation
+
+### License
