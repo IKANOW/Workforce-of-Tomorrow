@@ -29,6 +29,7 @@
 			import mx.charts.series.ColumnSeries;
 			import mx.charts.CategoryAxis;
 			import mx.charts.Legend;
+			import mx.charts.chartClasses.IAxis;
 				
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
@@ -208,6 +209,8 @@
 			{
 				this.widgetOptions = widgetOptions;
 			}
+			
+
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -224,6 +227,7 @@
 			<mx:horizontalAxis>
 				<mx:CategoryAxis categoryField="year" displayName="Year"/>
 			</mx:horizontalAxis>
+						
 			<mx:series>
 				<mx:ColumnSeries xField="year" yField="aggregate" displayName="Aggregate Workforce"/>
 			</mx:series>
