@@ -23,21 +23,30 @@
 	<fx:Script>
 		<![CDATA[
 			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
-			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;	
+			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;
+			
+			import mx.charts.ColumnChart;
+			import mx.charts.series.ColumnSeries;
+			import mx.charts.CategoryAxis;
+			import mx.charts.Legend;
+				
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.Tree;
 			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;			
+			import mx.rpc.events.ResultEvent;
+			
+			
 			import org.alivepdf.pdf.PDF;
 			
 			private var _context:IWidgetContext;
-			private var titleArray:ArrayCollection = new ArrayCollection();
 			private var widgetOptions:Object = null;
 			private var API_SERVER:String = "http://infinite.wfot.ikanow.com/api/";
 			
-			// JUST USED TO LOAD STATIC DATA
+			// Create a 
+			[Bindable]private var dataCollection:ArrayCollection;
+			
 			[Bindable]private var aggregateWorkforce:ArrayCollection = new ArrayCollection( [
 				{ Year: "2010", Aggregate: 100000 },
 				{ Year: "2011", Aggregate: 90000 },
@@ -66,6 +75,9 @@
 			{
 				_context = context;
 				
+				infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year";
+				infiniteWorkforceService.send();
+				
 			}
 			
 			/**
@@ -81,35 +93,38 @@
 			protected function buttonPress(key:int):void
 			{
 				
-				switch(key)
-				{
-					case 0:
-						infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year_opdiv";
-						break;
-					case 1:
-						infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year";
-						break;
-					case 2:
-						infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year_frbod";
-						break;
-					default:
-						Alert.show("An Error has occured");
-						break;
-				}
-				infiniteWorkforceService.send();
-				
 			}
 			
 			/**
 			 * Result event for mapreduce call, checks if it was successful then formats json
-			 * response to XML to be displayed in a flex tree.
+			 * response to an array list
 			 */
 			protected function infiniteWorkforceServiceResult(event:ResultEvent):void
-			{					
-				var data:Object = JSONDecoder.decode(event.result as String);
-				if ( data.response.success.toString() == "true" )
+			{	
+				// Get the JSON Data from the Infinit.e Service
+				var dataJson:Object = JSONDecoder.decode(event.result as String);
+				// Establish a data collection to contain that will serve as the source of data for the chart
+				dataCollection = new ArrayCollection();
+
+				if ( dataJson.response.success.toString() == "true" )
 				{
-					// here is where you load up the data after the service call	
+					// here is where you load up the data after the service call
+					for each(var i in dataJson.data.results)
+					{
+						var obj:Object = new Object();
+						if (i._id.year != null)
+						{
+							// Add the year and aggregate to the object
+							obj.year = i._id.year.toString();
+							obj.aggregate = i.value.begempcnt.toString();
+							// push it to the array collection
+							dataCollection.source.push(obj);
+						}
+						
+					}
+					// Add the data to chart
+					chart.dataProvider = dataCollection;
+									
 				}
 				else
 				{
@@ -216,19 +231,18 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	
-	<s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" 
+	<s:VGroup width="90%" height="90%" verticalAlign="middle" horizontalAlign="center" 
 			  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-		<mx:ColumnChart id="column" width="100%" height="100%" color="0x323232"
-						showDataTips="true" dataProvider="{aggregateWorkforce}">		
+		<mx:ColumnChart id="chart" width="100%" height="100%" color="0x323232"
+						showDataTips="true">		
 			<mx:horizontalAxis>
-				<mx:CategoryAxis categoryField="Year"/>
+				<mx:CategoryAxis categoryField="year" displayName="Year"/>
 			</mx:horizontalAxis>
-			
 			<mx:series>
-				<mx:ColumnSeries xField="Year" yField="Aggregate" displayName="Aggregate Workforce"/>
+				<mx:ColumnSeries xField="year" yField="aggregate" displayName="Aggregate Workforce"/>
 			</mx:series>
 		</mx:ColumnChart>
-		<mx:Legend dataProvider="{column}" color="0x323232"/>
+		<mx:Legend id="legend" dataProvider="{chart}" color="0x323232"/>
 	
 	</s:VGroup>
 </mx:Module>
