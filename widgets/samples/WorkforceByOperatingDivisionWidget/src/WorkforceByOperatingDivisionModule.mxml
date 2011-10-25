@@ -279,8 +279,18 @@
 						showDataTips="true">
 			
 			<mx:horizontalAxis>
-				<mx:CategoryAxis categoryField="year" displayName="Year"/>
+				<mx:CategoryAxis id="aYear" categoryField="year" displayName="Year"/>
 			</mx:horizontalAxis>
+			
+			<mx:horizontalAxisRenderers>
+				<mx:AxisRenderer 
+					axis="{aYear}"                 
+					showLabels="true"/>
+			</mx:horizontalAxisRenderers>
+			
+			<mx:verticalAxisRenderers>
+				<mx:AxisRenderer axis="{aYear}" showLabels="true"/>
+			</mx:verticalAxisRenderers>
 			
 			<mx:series>
 				<mx:ColumnSeries xField="year" yField="W_I" displayName="W-I"/>
