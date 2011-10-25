@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		   xmlns:s="library://ns.adobe.com/flex/spark" 
 		   xmlns:mx="library://ns.adobe.com/flex/mx" layout="absolute"
@@ -22,29 +23,27 @@
 	<fx:Script>
 		<![CDATA[
 			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
-			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;	
+			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;
+			
+			import mx.charts.CategoryAxis;
+			import mx.charts.ColumnChart;
+			import mx.charts.Legend;
+			import mx.charts.series.ColumnSeries;
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.Tree;
 			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;			
+			import mx.rpc.events.ResultEvent;
+			
 			import org.alivepdf.pdf.PDF;
 			
 			private var _context:IWidgetContext;
-			private var titleArray:ArrayCollection = new ArrayCollection();
 			private var widgetOptions:Object = null;
 			private var API_SERVER:String = "http://infinite.wfot.ikanow.com/api/";
 			
-			// JUST USED TO LOAD STATIC DATA
-			[Bindable]private var workforceByOperatingDivision:ArrayCollection = new ArrayCollection( [
-				{ Year: "2010", OH: 100000, LB_I: 80000, SBSE: 77000, TEGE: 42000, W_I: 41000 },
-				{ Year: "2011", OH: 90000, LB_I:72000, SBSE: 69000, TEGE: 40000, W_I: 39000 },
-				{ Year: "2012", OH: 80000, LB_I:64000, SBSE: 61000, TEGE: 38000, W_I: 37000 },
-				{ Year: "2013", OH: 70000, LB_I:60000, SBSE: 57000, TEGE: 36000, W_I: 35000 },
-				{ Year: "2014", OH: 63000, LB_I:55000, SBSE: 52000, TEGE: 34000, W_I: 33000 },
-				{ Year: "2015", OH: 60000, LB_I:51000, SBSE: 47000, TEGE: 32000, W_I: 31000 },
-			]);
+			// Create a data collection array that will allow the chart to be displayed
+			[Bindable]private var dataCollection:ArrayCollection;
 			
 			/**
 			 * Method fired when module is done loading.  Sends
@@ -64,7 +63,9 @@
 			public function onInit(context:IWidgetContext):void
 			{
 				_context = context;
-				infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year";
+				
+				// Specifies the Rest Endpoint to Call
+				infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year_opdiv";
 				infiniteWorkforceService.send();
 				
 			}
@@ -78,39 +79,43 @@
 			{
 				
 			}
-			
-			protected function buttonPress(key:int):void
-			{
-				
-				switch(key)
-				{
-					case 0:
-						infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year_opdiv";
-						break;
-					case 1:
-						infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year";
-						break;
-					case 2:
-						infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year_frbod";
-						break;
-					default:
-						Alert.show("An Error has occured");
-						break;
-				}
-				infiniteWorkforceService.send();
-				
-			}
-			
+						
 			/**
 			 * Result event for mapreduce call, checks if it was successful then formats json
-			 * response to XML to be displayed in a flex tree.
+			 * response to an array list
 			 */
 			protected function infiniteWorkforceServiceResult(event:ResultEvent):void
-			{					
-				var data:Object = JSONDecoder.decode(event.result as String);
-				if ( data.response.success.toString() == "true" )
+			{	
+				// Get the JSON Data from the Infinit.e Service
+				var dataJson:Object = JSONDecoder.decode(event.result as String);
+				// Establish a data collection to contain that will serve as the source of data for the chart
+				dataCollection = new ArrayCollection();
+				
+				if ( dataJson.response.success.toString() == "true" )
 				{
-					// here is where you load up the data after the service call	
+					var obj:Object = new Object
+					// here is where you load up the data after the service call
+					for each(var i in dataJson.data.results)
+					{
+						
+						// Verify year is not null
+						if (i._id.year != null)
+						{	
+							populateDivisions(obj, i._id.year.toString(), i._id.op_div.toString(), i.value.begempcnt.toString());
+								
+							// verify all the data is present
+							if ( ( obj != null ) && ( obj.full != null ) ) {
+								// push it to the array collection
+								dataCollection.source.push(obj);
+								// rest the object
+								obj = new Object;
+							}
+						}
+						
+					}
+					// Add the data to chart
+					chart.dataProvider = dataCollection;
+					
 				}
 				else
 				{
@@ -119,6 +124,7 @@
 				}				
 			}
 			
+
 			
 			/**
 			 * Error sending API request.
@@ -208,6 +214,54 @@
 			{
 				this.widgetOptions = widgetOptions;
 			}
+			
+			
+			/*
+			*
+			*  Local Computing Focus that are relevant to the widget
+			*
+			*/
+			
+			/**
+			 * Populates the division information into a format the chart can read
+			 *  and sums up the campus data based on the assumption that these should be summed
+			 */
+			private function populateDivisions(obj:Object, year:String, opdiv:String, begempcnt:String):void {
+				
+				// set up the year
+				obj.year = year;
+				// Makes the assumption that we want to roll up campus
+				if ( (opdiv == "W_I") || (opdiv == "WICAMP") ){										
+					if ( obj.W_I != null ) {
+						obj.W_I = String(parseFloat(begempcnt) + parseFloat(obj.W_I));	
+						obj.W_I_AGGR = true;
+					} else {
+						obj.W_I = begempcnt;
+					}
+				}
+				if (opdiv == "TEGE") {
+					obj.TEGE = begempcnt;
+				}
+				if ( (opdiv == "SBSE") || (opdiv == "SBSECAMP") ) {
+					if ( obj.SBSE != null ) {
+						obj.SBSE = String(parseFloat(begempcnt) + parseFloat(obj.SBSE));
+						obj.SBSE_AGGR = true;
+					} else {
+						obj.SBSE = begempcnt;
+					}
+					
+				}
+				if (opdiv == "LB_I") {
+					obj.LB_I = begempcnt;
+				}
+				// verify all the data is present
+				if ( ( obj != null ) && ( obj.W_I != null ) && ( obj.W_I_AGGR != null ) && ( obj.TEGE != null ) && ( obj.SBSE != null )  && ( obj.SBSE_AGGR != null ) && ( obj.LB_I !=  null ) ) {
+					obj.full = true;
+				}	
+				
+			}
+			
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -217,26 +271,26 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	
-	<s:VGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" 
+	<s:VGroup width="90%" height="90%" verticalAlign="middle" horizontalAlign="center" 
 			  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-		<mx:AreaChart id="area" 
-					  showDataTips="true" 
-					  dataProvider="{workforceByOperatingDivision}"
-					  width="450" height="100%">
+		
+		
+		<mx:ColumnChart id="chart" width="100%" height="100%" color="0x323232"
+						showDataTips="true">
+			
 			<mx:horizontalAxis>
-				<mx:CategoryAxis           
-					categoryField="Year"
-					displayName="Year"/>
+				<mx:CategoryAxis categoryField="year" displayName="Year"/>
 			</mx:horizontalAxis>
+			
 			<mx:series>
-				<mx:AreaSeries yField="OH" displayName="OH"/>
-				<mx:AreaSeries yField="LB_I" displayName="LB_I"/>
-				<mx:AreaSeries yField="SBSE" displayName="SBSE"/>
-				<mx:AreaSeries yField="TEGE" displayName="TEGE"/>
-				<mx:AreaSeries yField="W_I" displayName="W_I"/>				
+				<mx:ColumnSeries xField="year" yField="W_I" displayName="W-I"/>
+				<mx:ColumnSeries xField="year" yField="TEGE" displayName="TEGE"/>
+				<mx:ColumnSeries xField="year" yField="SBSE" displayName="SBSE"/>
+				<mx:ColumnSeries xField="year" yField="LB_I" displayName="LB-I"/>
 			</mx:series>
-		</mx:AreaChart>
-		<mx:Legend dataProvider="{area}"/>
+		</mx:ColumnChart>
+		
+		<mx:Legend dataProvider="{chart}" color="0x323232"/>
 		
 	</s:VGroup>
 </mx:Module>

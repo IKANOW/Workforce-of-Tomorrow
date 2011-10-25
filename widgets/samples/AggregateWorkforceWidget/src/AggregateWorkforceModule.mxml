@@ -44,18 +44,9 @@
 			private var widgetOptions:Object = null;
 			private var API_SERVER:String = "http://infinite.wfot.ikanow.com/api/";
 			
-			// Create a 
+			// Create a data collection array that will allow the chart to be displayed
 			[Bindable]private var dataCollection:ArrayCollection;
-			
-			[Bindable]private var aggregateWorkforce:ArrayCollection = new ArrayCollection( [
-				{ Year: "2010", Aggregate: 100000 },
-				{ Year: "2011", Aggregate: 90000 },
-				{ Year: "2012", Aggregate: 80000 },
-				{ Year: "2013", Aggregate: 70000 },
-				{ Year: "2014", Aggregate: 63000 },
-				{ Year: "2015", Aggregate: 60000 },
-			]);
-			
+						
 			/**
 			 * Method fired when module is done loading.  Sends
 			 * message to parent letting it know that module is
@@ -86,11 +77,6 @@
 			 * iwidgetcontext object context.getQuery_TopResults().getTopDocuments();
 			 */
 			public function onReceiveNewQuery():void
-			{
-				
-			}
-			
-			protected function buttonPress(key:int):void
 			{
 				
 			}
