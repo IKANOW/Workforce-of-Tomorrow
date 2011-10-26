@@ -79,7 +79,7 @@
 			{
 				
 			}
-						
+			
 			/**
 			 * Result event for mapreduce call, checks if it was successful then formats json
 			 * response to an array list
@@ -102,7 +102,7 @@
 						if (i._id.year != null)
 						{	
 							populateDivisions(obj, i._id.year.toString(), i._id.op_div.toString(), i.value.begempcnt.toString());
-								
+							
 							// verify all the data is present
 							if ( ( obj != null ) && ( obj.full != null ) ) {
 								// push it to the array collection
@@ -124,7 +124,7 @@
 				}				
 			}
 			
-
+			
 			
 			/**
 			 * Error sending API request.
@@ -304,3 +304,4 @@
 		
 	</s:VGroup>
 </mx:Module>
+
