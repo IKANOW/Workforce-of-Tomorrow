@@ -17,7 +17,7 @@
     <application path="InfiniteTestApplication.mxml"/>
   </applications>
   <modules>
-    <module application="src/InfiniteTestApplication.mxml" destPath="WorkforceWithDivisionsModule.swf" optimize="true" sourcePath="src/WorkforceWithDivisionsModule.mxml"/>
+    <module application="src/InfiniteTestApplication.mxml" destPath="WorkforceWithDivisionsModule.swf" optimize="false" sourcePath="src/WorkforceWithDivisionsModule.mxml"/>
   </modules>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
