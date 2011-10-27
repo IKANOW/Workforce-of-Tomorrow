@@ -39,8 +39,6 @@
 			
 			private var _context:IWidgetContext;
 			private var widgetOptions:Object = null;
-			
-			// Just used in samples (will be feed in via properties)
 			private var API_SERVER:String = "http://infinite.wfot.ikanow.com/api/";
 			
 			// Create a data collection array that will allow the chart to be displayed
