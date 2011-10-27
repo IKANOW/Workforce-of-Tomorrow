@@ -38,17 +38,10 @@ s|global
 	content-background-alpha: 1.0;
 	font-family: infiniteDefaultFont;
 }
-s|Label
+s|global
 {
+	content-background-alpha: 1.0;
 	font-family: infiniteDefaultFont;
-}
-s|TextInput
-{
-	font-family: infiniteDefaultFont;
-}
-mx|LinkButton
-{
-	font-family: infiniteNonCFFFont;
 }
 mx|Panel
 {
@@ -58,31 +51,7 @@ mx|ToolTip
 {
 	font-family: infiniteNonCFFFont;
 }
-mx|TextArea
-{
-	font-family: infiniteNonCFFFont;
-}
-mx|Label
-{
-	font-family: infiniteNonCFFFont;
-}
-mx|MenuBar
-{
-	font-family: infiniteNonCFFFont;
-}
-ilog|RadarChart
-{
-	font-family: infiniteNonCFFFont;
-}
-ilog|ColumnChart3D
-{
-	font-family: infiniteNonCFFFont;
-}
 mx|Legend
-{
-	font-family: infiniteNonCFFFont;
-}
-mx|ComboBox
 {
 	font-family: infiniteNonCFFFont;
 }
