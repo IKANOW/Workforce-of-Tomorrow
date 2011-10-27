@@ -41,15 +41,6 @@
 			// Create a data collection array that will allow the chart to be displayed
 			[Bindable]private var dataCollection:ArrayCollection;
 			
-			// Static FTE data - will replace with call Infinit.e API when more definitive data becomes available
-			[Bindable]private var workloadForecast:ArrayCollection = new ArrayCollection( [
-				{ Year: "2010", LB_I: 0, SBSE: 0, TEGE: 0, W_I: 0 },
-				{ Year: "2011", LB_I:6838.105, SBSE: 3700.75, TEGE: 1661.87, W_I: 13476.05},
-				{ Year: "2012", LB_I:6973.709, SBSE: 3757.61, TEGE: 1674.2, W_I: 13345.43 },
-				{ Year: "2013", LB_I:7079.335, SBSE: 3805.57, TEGE: 1681.61, W_I: 13484.83 },
-				{ Year: "2014", LB_I:7268.459, SBSE: 3856.87, TEGE: 1689.57, W_I: 13643.16 },
-				{ Year: "2015", LB_I:7456.158, SBSE: 3909.71, TEGE: 1696.82, W_I: 13824.67 },
-			]);
 			
 			/**
 			 * Method fired when module is done loading.  Sends
