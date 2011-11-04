@@ -1,7 +1,8 @@
 <mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		   xmlns:s="library://ns.adobe.com/flex/spark" 
 		   xmlns:mx="library://ns.adobe.com/flex/mx" layout="absolute"
-		   implements="com.ikanow.infinit.e.widget.library.widget.IWidget">
+		   implements="com.ikanow.infinit.e.widget.library.widget.IWidget"
+		   creationComplete="{ try { onWidgetCreationComplete(); } catch (e:Error) {} dispatchEvent(new Event('Done Loading')); }">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -49,8 +50,8 @@
 			 */
 			private function onWidgetCreationComplete():void
 			{
-				var events:Event = new Event("Done Loading");
-				dispatchEvent(events);
+				infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year_opdiv";
+				infiniteWorkforceService.send();
 			}
 			
 			/**
@@ -60,11 +61,6 @@
 			public function onInit(context:IWidgetContext):void
 			{
 				_context = context;
-				
-				// Specifies the Rest Endpoint to Call
-				infiniteWorkforceService.url = API_SERVER + "knowledge/mapreduce/getresults/irs_workforce_year_opdiv";
-				infiniteWorkforceService.send();
-				
 			}
 			
 			/**
