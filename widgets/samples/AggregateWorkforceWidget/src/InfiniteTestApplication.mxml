@@ -4,7 +4,7 @@
 			   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:local="*"
 			   creationComplete="application1_creationCompleteHandler(event)" xmlns:containers="flexlib.mdi.containers.*" 
 			   >
-	<fx:Style source="../com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
+	<fx:Style source="/com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
 	<fx:Script>
 		<![CDATA[			
 			import com.ikanow.infinit.e.widget.library.frameworkold.QueryResults;

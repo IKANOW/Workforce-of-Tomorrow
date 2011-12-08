@@ -6,7 +6,7 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<fx:Style source="../com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
+	<fx:Style source="/com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
 	<fx:Style>
 		@namespace s "library://ns.adobe.com/flex/spark";
 		@namespace mx "library://ns.adobe.com/flex/mx";
