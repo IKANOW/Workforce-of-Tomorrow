@@ -9,26 +9,26 @@ in the <fx:style> tags of your widget */
 
 @font-face
 {
-	src:url("../com/ikanow/infinit/e/assets/fonts/nobile.ttf");
+	src:url("/com/ikanow/infinit/e/assets/fonts/nobile.ttf");
 	fontFamily: infiniteDefaultFont;
 	fontWeight: normal;
 }
 @font-face
 {
-	src:url("../com/ikanow/infinit/e/assets/fonts/nobile_bold.ttf");
+	src:url("/com/ikanow/infinit/e/assets/fonts/nobile_bold.ttf");
 	fontFamily: infiniteDefaultFont;
 	fontWeight: bold;
 }
 @font-face
 {
-	src:url("../com/ikanow/infinit/e/assets/fonts/nobile.ttf");
+	src:url("/com/ikanow/infinit/e/assets/fonts/nobile.ttf");
 	fontFamily: infiniteNonCFFFont;
 	fontWeight: normal;
 	embedAsCFF: false;
 }
 @font-face
 {
-	src:url("../com/ikanow/infinit/e/assets/fonts/nobile_bold.ttf");
+	src:url("/com/ikanow/infinit/e/assets/fonts/nobile_bold.ttf");
 	fontFamily: infiniteNonCFFFont;
 	fontWeight: bold;
 	embedAsCFF: false;
