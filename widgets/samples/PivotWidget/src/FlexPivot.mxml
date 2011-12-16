@@ -18,10 +18,9 @@
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.utils.ObjectUtil;
-			
-			import mx.events.ListEvent;
 			
 			private function get swfFilePath():String {
 				// Flex 4
@@ -75,11 +74,14 @@
 			private function executeSQL():void {
 				pivotChart.rows = "";
 				pivotChart.columns = "";
-				pivotChart.measures = "";	
-				pivotChart.filename = "qWorkload2.csv";
+				pivotChart.measures = "";
 				
-				//pivotChart.load();
-				pivotChart.openFieldsList();
+				var sql:String = "http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=" + query.text.toString();
+				//var sql:String = "http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT * FROM \"Q_Workload_Lvl2\"";
+				pivotChart.filename = sql;
+				
+				pivotChart.load();
+				//pivotChart.openFieldsList();
 			}
 			
 			protected function cb_changeHandler(evt:ListEvent):void {
@@ -88,9 +90,9 @@
 				pivotChart.measures = "";	
 				pivotChart.filename = cb.selectedItem.data;
 				
-				//pivotChart.load()
+				pivotChart.load()
 				
-				pivotChart.openFieldsList();
+				//pivotChart.openFieldsList();
 				
 				
 				
@@ -103,6 +105,21 @@
 			private function showReport() {
 				reportBox.visible = true;
 				exportBox.visible = false;
+			}
+			
+			private function addData():void {
+				//this.clearData();
+				this.addStructure();
+			}
+			
+			private function addStructure():void {
+				pivotChart.addDimension("[Geography]", "Geography");
+				pivotChart.addDimension("[Product]", "Product");
+				pivotChart.addHierarchy("[Geography]", "[Geography].[Country]", "Country");
+				pivotChart.addHierarchy("[Product]", "[Product].[Color]", "Color");
+				pivotChart.addHierarchy("[Product]", "[Product].[Category]", "Category");
+				pivotChart.addMeasure("[Measures].[Price]", "Price");
+				pivotChart.addMeasure("[Measures].[Discount]", "Discount", AggregationName.COUNT);	
 			}
 			
 		
