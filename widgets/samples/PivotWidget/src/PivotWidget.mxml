@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<components:WidgetModule xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:pivot="com.flexmonster.pivot.*"
+		   xmlns:components="com.ikanow.infinit.e.widget.library.components.*"
+		   implements="com.ikanow.infinit.e.widget.library.widget.IWidget" 
+		   >
+	<fx:Style source="/com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		/* If you need to override a style in our stylesheet, or add another
+		style that we did not support you can do so here, an example has been commented out
+		Please see documentation about over-riding MX component styles to display fonts*/
+		/*
+		mx|Text
+		{
+		font-family: infiniteNonCFFFont;
+		}
+		*/
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import com.flexmonster.pivot.data.consts.AggregationName;
+			import com.flexmonster.pivot.data.consts.SortType;
+			import com.flexmonster.pivot.events.CellClickEvent;
+			import com.flexmonster.pivot.model.config.vo.ReportValueObject;
+			import com.flexmonster.pivot.type.DestinationType;
+			import com.flexmonster.pivot.type.ExportOptions;
+			import com.flexmonster.pivot.type.ExportType;
+			import com.flexmonster.pivot.view.ViewType;
+			import com.flexmonster.pivot.view.charts.ChartType;
+			import com.flexmonster.pivot.view.grid.renderer.PivotGridCellRenderer;
+			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
+			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;
+			
+			import flash.net.navigateToURL;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.containers.TitleWindow;
+			import mx.controls.Alert;
+			import mx.controls.Tree;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import org.alivepdf.pdf.PDF;
+			
+			import spark.events.IndexChangeEvent;
+			
+			private var _context:IWidgetContext;
+			private var titleArray:ArrayCollection = new ArrayCollection();
+			private var widgetOptions:Object = null;
+			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
+			private var CONFIG_LOC:String = "pivot_configs/workload_workstream.xml";
+			
+			/**
+			 * Method fired when module is done loading.  Sends
+			 * message to parent letting it know that module is
+			 * ready to receive data.
+			 */
+			private function onWidgetCreationComplete():void
+			{
+				var events:Event = new Event("Done Loading");
+				dispatchEvent(events);
+			}
+			
+			/**
+			 * IWidget interface to receive data object (IWidgetContext).
+			 * Store the iwidgetcontext so we can receieve data later.
+			 */
+			public function onInit(context:IWidgetContext):void
+			{
+				_context = context;
+			}
+			
+			/**
+			 * IWidget interface that fires when a new query is done.
+			 * We can access the data from the query by using our
+			 * iwidgetcontext object context.getQuery_TopResults().getTopDocuments();
+			 */
+			public function onReceiveNewQuery():void
+			{
+				//Not used for IRS Data
+			}
+			
+			/**
+			 * @returns A list of supported formats, displayed in a context menu in the format
+			 * "Export <string>" - these are called with "onGenerateExportData"
+			 * Note this doesn't cover the "built-in" Alive PDF export.
+			 * However if the developer specifies PDF and onGeneratePdf() returns non-null then this will be used.
+			 */
+			
+			public function supportedExportFormats():ArrayCollection
+			{
+				var ac:ArrayCollection = new ArrayCollection();
+				return ac;
+			}
+			/**
+			 * function to build a pdf version of the widget
+			 * 
+			 * @return pdf version of the widget 
+			 */
+			public function onGeneratePDF(printPDF:PDF, title:String):PDF
+			{
+				return null;
+			}
+			
+			/**
+			 * function to rescale the module when the parent container is being resized
+			 * 
+			 * @param newHeight The new height the component needs to be set to
+			 * @param newWidth The new width the component needs to be set to
+			 */ 
+			public function onParentResize(newHeight:Number,newWidth:Number):void
+			{
+				this.height = newHeight;
+				this.width = newWidth;
+			}
+			
+			/**
+			 * This function gets called when the workspace is being saved.
+			 * return null if no save string is needed.
+			 * 
+			 * @return a string this widget can use to reload state
+			 */
+			public function onSaveWidgetOptions():Object
+			{
+				return null;
+			}
+			
+			/**
+			 * Allow users to export the widget contents in the specified format
+			 * @format filename: the filename+path to which the data will be written (in case it needs to be embedded)
+			 * @param format: the format from the "supportedFormats" call
+			 * 
+			 * @returns a ByteArray containing the data to output
+			 */
+			public function onGenerateExportData(filename:String, format:String):ByteArray
+			{
+				return null;
+			}
+			
+			/**
+			 * IWidget interface that fires when a new filter is done (including from ourself)
+			 * We can access the data fromt he filter by using our
+			 * iwidgetcontext object _context.getQuery_FilteredResults().getTopDocuments();
+			 */  
+			public function onReceiveNewFilter():void
+			{
+				// Not used for IRS Data
+			}
+			
+			/**
+			 * If a save string has been saved from 'getSaveString' then
+			 * when the app gets reloaded the last save string
+			 * will be passed to this function.
+			 * 
+			 * @param saveString the last save string or null if there was none
+			 */
+			public function onLoadWidgetOptions(widgetOptions:Object):void
+			{
+				this.widgetOptions = widgetOptions;
+			}
+			
+			
+			private function get swfFilePath():String {
+				// Flex 4
+				return (FlexGlobals.topLevelApplication.parameters['swfFilePath'] == null) ? 'flexmonster/' : FlexGlobals.topLevelApplication.parameters['swfFilePath']; 
+				// Flex 3
+				//	return (Application.application.parameters['swfFilePath'] == null) ? 'flexmonster/' : Application.application.parameters['swfFilePath'];
+			}
+			
+			private function onGridClick(event:Event):void {
+				var cell:PivotGridCellRenderer = (event as CellClickEvent).cell;
+				var rows:Array = [];
+				for (var i:int = 0; i < cell.rows.length; i++) {
+					var row:Object = cell.rows[i];
+					rows.push(row.hierarchyCaption + "=" + row.caption);
+				}
+				var rowStr:String = rows.join(", ");
+				
+				var columns:Array = [];
+				for (i = 0; i < cell.columns.length; i++) {
+					var column:Object = cell.columns[i];
+					columns.push(column.hierarchyCaption + "=" + column.caption);
+				}
+				var columnStr:String = columns.join(", ");
+				
+				Alert.show("Rows: " + rowStr + "\nColumns: " + columnStr + "\nValue:" + cell.label);
+			}
+			
+			private function exportRawCSV():void {
+				pivotChart.export(ExportType.CSV, null, onExportRawCSV);
+			}
+			
+			private function onExportRawCSV(data:String):void {
+				Alert.show(data);
+			}
+			
+			
+			protected function export_changeHandler(event:IndexChangeEvent):void {
+				
+				switch (exportDrop.selectedItem.toString())
+				{
+					case "CSV":
+					{
+						pivotChart.export(ExportType.CSV)
+						break;
+					}
+					case "CSV Raw":
+					{
+						saveToFile();
+						Alert.show("Not yet implemented");
+						//var myFileReference:FileReference = new FileReference();
+						//navigateToURL(new URLRequest("http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT * FROM vw_union"), "_wfot");
+						//myFileReference.save(new URLRequest("http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT * FROM vw_union").toString(), "pivot.txt");
+						break;
+					}
+					case "Image":
+					{
+						pivotChart.export(ExportType.IMAGE)
+						break;
+					}
+					case "PDF":
+					{
+						pivotChart.export(ExportType.PDF)
+						break;
+					}
+					case "Excel":
+					{
+						pivotChart.export(ExportType.EXCEL)
+						break;
+					}
+					case "Html":
+					{
+						pivotChart.export(ExportType.HTML)
+						break;
+					}
+				    default :
+					{
+						
+					}
+				}
+				
+				exportDrop.selectedIndex = 0;
+			}
+			
+			
+			
+			//Grid,Bar,Bar Stack,Scatter,Cylinder,Pie,Line
+			protected function view_changeHandler(event:IndexChangeEvent):void {
+				
+				switch (viewDrop.selectedItem.toString())
+				{
+					case "Grid":
+					{
+						pivotChart.showGrid();
+						break;
+					}
+					case "Bar":
+					{
+						pivotChart.showCharts(ChartType.BAR);
+						break;
+					}
+					case "Stack":
+					{
+						pivotChart.showCharts(ChartType.BAR_STACK);
+						break;
+					}
+					case "Scatter":
+					{
+						pivotChart.showCharts(ChartType.SCATTER);
+						break;
+					}
+					case "Cylinder":
+					{
+						pivotChart.showCharts(ChartType.CYLINDER);
+						break;
+					}
+					case "Pie":
+					{
+						pivotChart.showCharts(ChartType.PIE);
+						break;
+					}
+					case "Line":
+					{
+						pivotChart.showCharts(ChartType.LINE);
+						break;
+					}
+				}
+				
+				viewDrop.selectedIndex = 0;
+			}
+			
+			private function saveToServer():void {
+				this.pivotChart.save(
+					'report.xml',
+					DestinationType.SERVER,
+					function(response:*):void {
+						Alert.show((response as String),'Report was saved!')
+					},
+					'http://infinite.wfot.iknow.com/flex/save.php'
+				);
+			}
+			
+			private function saveToFile():void {
+				pivotChart.save('report.xml', DestinationType.FILE)
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<components:headerContent>
+		
+		<s:HGroup gap="-3">
+			
+			
+			
+			<!-- Export Options -->
+
+			<components:WidgetDropDownList id="exportDrop"
+										   verticalScrollPolicy="off"
+										   horizontalScrollPolicy="off"
+										   selectedIndex="0" 
+										   change="setTimeout( export_changeHandler, 100, event )">
+				<components:dataProvider>
+					<s:ArrayList source="[Export To...,CSV,CSV Raw,Image,PDF,Excel,Html]" />
+				</components:dataProvider>
+			</components:WidgetDropDownList>
+			
+			<components:WidgetDropDownList id="viewDrop"
+										   verticalScrollPolicy="off"
+										   horizontalScrollPolicy="off"
+										   selectedIndex="0"
+										   change="setTimeout( view_changeHandler, 100, event )">
+				
+				<components:dataProvider>
+					<s:ArrayList source="[View As...,Grid,Bar,Scatter,Cylinder,Pie,Line]" />
+				</components:dataProvider>
+			</components:WidgetDropDownList>
+			
+			<!-- Grid Toggle Button -->
+			<components:WidgetToggleButton id="printButton"
+										   label="Print"
+										   toolTip="Print"
+										   click="pivotChart.print()" />
+			
+		</s:HGroup>
+		
+	</components:headerContent>
+	<mx:Canvas label="Switch View" width="100%" height="100%">
+		<!--<mx:HBox id="reportBox" width="100%">
+			 <mx:Button x="10" y="10" label="Export" width="100" height="90" color="#0000FF" click="showExport()"/>
+			<mx:Button x="115" y="10" label="Grid" icon="@Embed(source='images/Table.png')" width="100" height="90" color="#0000FF" click="pivotChart.showGrid()"/>
+			<mx:Button x="220" y="10" label="Bar" icon="@Embed(source='images/Bar Chart.png')" width="100" height="90" color="#0000FF" click="pivotChart.showCharts(ChartType.BAR)"/>
+			<mx:Button x="325" y="10" label="Line" icon="@Embed(source='images/Line Chart.png')" width="100" height="90" color="#0000FF" click="pivotChart.showCharts(ChartType.LINE)"/>
+			<mx:Button x="430" y="10" label="Pie" icon="@Embed(source='images/Pie Chart.png')" width="100" height="90" color="#0000FF" click="pivotChart.showCharts(ChartType.PIE)"/>
+			<mx:Button x="535" y="10" label="Fields" width="100" height="90" color="#0000FF" click="pivotChart.openFieldsList()"/> 
+			<mx:VBox x="640" y="10" width="400" height="90">
+				<mx:ComboBox id="cb" prompt="Please Select"
+							 selectedIndex="-1"
+							 change="cb_changeHandler(event);"
+							 width="400" height="20"
+							 x="535" y="10">
+					<mx:dataProvider>
+						<fx:Object label="Run Workload 1" data="qWorkload1.csv" />
+						<fx:Object label="Run Workload 2" data="qWorkload2.csv" />
+						<fx:Object label="Run Workload Level 2" data="qWorkloadLevel2.csv" />
+						<fx:Object label="Run Workforce Level 2" data="qWorkforceLevel2.csv" />
+					</mx:dataProvider>
+				</mx:ComboBox>
+				<mx:TextArea x="535" y="55" id="query" width="400" height="64"/>
+			</mx:VBox>
+			
+			<mx:Button x="1045" y="10" label="Execute SQL" width="100" height="90" color="#0000FF" click="executeSQL()"/>
+		</mx:HBox>
+		<mx:HBox id="exportBox" visible="false" width="100%">
+			<mx:Button x="1140" y="10" label="Report" width="100" height="90" color="#0000FF" />
+			<mx:Button label="Raw CSV" icon="@Embed(source='images/file_csv.png')" width="100" height="90" color="#0000FF" click="exportRawCSV()"/>
+			<mx:Button label="CSV to file" icon="@Embed(source='images/file_csv.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.CSV);"/>
+			<mx:Button label="Image" icon="@Embed(source='images/file_png.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.IMAGE)"/>
+			<mx:Button label="PDF" icon="@Embed(source='images/file_pdf.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.PDF)"/>
+			<mx:Button label="Excel" icon="@Embed(source='images/file_xls.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.EXCEL)"/>
+			<mx:Button label="Print" icon="@Embed(source='images/printer.png')" width="100" height="90" color="#0000FF" click="pivotChart.print()"/>				
+		</mx:HBox>-->
+		
+		<pivot:FlexPivotComponent id="pivotChart" width="100%" height="100%" x="1"
+								  configUrl="{this.CONFIG_LOC}"
+								  swfFilePath="{this.swfFilePath}"/>
+	</mx:Canvas>
+</components:WidgetModule>
