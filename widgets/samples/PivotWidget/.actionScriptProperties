@@ -14,9 +14,11 @@
     <sourceAttachmentPath/>
   </compiler>
   <applications>
-    <application path="FlexPivot.mxml"/>
+    <application path="InfiniteTestApplication.mxml"/>
   </applications>
-  <modules/>
+  <modules>
+    <module destPath="PivotWidget.swf" optimize="false" sourcePath="src/PivotWidget.mxml"/>
+  </modules>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
 </actionScriptProperties>
