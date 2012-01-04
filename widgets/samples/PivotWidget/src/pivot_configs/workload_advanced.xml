@@ -40,7 +40,7 @@
 		<param name="fitGridlines">off</param>
 		<param name="showTotals">on</param>
 		<param name="showGrandTotals">on</param>
-		<param name="localSettingsURL">local.xml</param>
+		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f04b24a23351f21cef6e8e5</param>
 		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
 		<param name="emptyDataWarning">off</param>
 	</params>
