@@ -58,7 +58,7 @@
 			private var titleArray:ArrayCollection = new ArrayCollection();
 			private var widgetOptions:Object = null;
 			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
-			private var CONFIG_LOC:String = "pivot_configs/workload_workstream.xml";
+			private var CONFIG_LOC:String = "pivot_configs/workload_bod.xml";
 			
 			/**
 			 * Method fired when module is done loading.  Sends

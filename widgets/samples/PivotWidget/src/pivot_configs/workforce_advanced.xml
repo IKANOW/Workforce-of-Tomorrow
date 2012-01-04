@@ -1,0 +1,57 @@
+<config>
+	<dataSource type="CSV">
+		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT "FTEs", "Year", "BOD","Workstream", "Series" FROM vw_workforce]]></filename>
+	</dataSource>
+	<defaultSlice name="Default Report">
+		<axes>
+			<axis name="rows">
+				<hierarchy>
+					<dimensionName>[Year]</dimensionName>
+					<hierarchyName>[Year].[Year]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+					<dimensionName>[BOD]</dimensionName>
+					<hierarchyName>[BOD].[BOD]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+					<dimensionName>[Workstream]</dimensionName>
+					<hierarchyName>[Workstream].[Workstream]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+					<dimensionName>[Series]</dimensionName>
+					<hierarchyName>[Series].[Series]</hierarchyName>
+				</hierarchy>
+			</axis>
+		</axes>
+		<measures>
+			<measure format="number">[Measures].[FTEs]</measure>
+		</measures>
+	</defaultSlice>
+	
+	<style source="http://infinite.wfot.ikanow.com/api/share/get/4f0300f723356dbe3abd02e3"/>
+
+	<params>
+		<param name="configuratorActive">off</param>
+		<param name="configuratorButton">on</param>
+		<param name="viewType">grid</param>
+		<param name="chartType">bar</param>
+		<param name="showChartZeroValues">off</param>
+		<param name="showHeaders">on</param>
+		<param name="fitGridlines">off</param>
+		<param name="showTotals">on</param>
+		<param name="showGrandTotals">on</param>
+		<param name="localSettingsURL">local.xml</param>
+		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
+		<param name="emptyDataWarning">off</param>
+	</params>
+	
+ 	<format>
+		<param name="thousandsSeparator"><![CDATA[,]]></param>
+		<param name="decimalSeparator"><![CDATA[.]]></param>
+		<param name="decimalPlaces">2</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="maxSymbols">30</param> <!-- max number of symbols in cell. by default is 10. -->
+		<param name="maxDecimalPlaces">2</param>
+		<param name="currencySymbol"></param> <!-- if you want format numbers as currency -->
+		<param name="currencySymbolAlign">left</param> <!-- left or right / by default is left -->
+	</format>	
+</config>
