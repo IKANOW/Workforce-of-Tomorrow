@@ -116,8 +116,10 @@ sheetHeader:pdf {
 	fontSize: 12;
 	color: #FFFFFF; 
 	textIndent:4;
-	backgroundColor: #336600;
-	overColor: #91AA9D;
+	backfillColor: 0x000000;
+	backfillAlpha: 0.4;
+	backgroundColor: #004d7b;
+	overColor: #055789;
 	paddingLeft: 2;
 }
 
@@ -126,7 +128,7 @@ sheetHeader:pdf {
 	fontSize: 8;
 	color: #FFFFFF; 
 	textIndent:4;
-	backgroundColor: #336600;
+	backgroundColor: #004d7b;
 	paddingLeft: 2;
 }
 
@@ -135,7 +137,7 @@ sheetHeader:pdf {
 	fontSize: 9;
 	color: #FFFFFF; 
 	textIndent:4;
-	backgroundColor: #336600;
+	backgroundColor: #004d7b;
 	paddingLeft: 2;
 }
 

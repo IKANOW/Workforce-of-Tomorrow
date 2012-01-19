@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<components:WidgetModule xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						 xmlns:s="library://ns.adobe.com/flex/spark" 
+						 xmlns:mx="library://ns.adobe.com/flex/mx"
+						 xmlns:components="com.ikanow.infinit.e.widget.library.components.*"
+						 implements="com.ikanow.infinit.e.widget.library.widget.IWidget" 
+						 >
+	<fx:Style source="/com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		/* If you need to override a style in our stylesheet, or add another
+		style that we did not support you can do so here, an example has been commented out
+		Please see documentation about over-riding MX component styles to display fonts*/
+		/*
+		mx|Text
+		{
+		font-family: infiniteNonCFFFont;
+		}
+		*/
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
+			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.Tree;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import org.alivepdf.pdf.PDF;
+			
+			private var _context:IWidgetContext;
+			
+			[Embed("com/ikanow/infinit/e/assets/images/icon_Plus.jpg")]
+			private var iconPlus:Class;
+			
+			[Embed("com/ikanow/infinit/e/assets/images/icon_Minus.jpg")]
+			private var iconMinus:Class;
+			
+			
+			private var titleArray:ArrayCollection = new ArrayCollection();
+			private var widgetOptions:Object = null;
+			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
+			protected var listData:XML = null;
+			
+			/**
+			 * Method fired when module is done loading.  Sends
+			 * message to parent letting it know that module is
+			 * ready to receive data.
+			 */
+			private function onWidgetCreationComplete():void
+			{
+				var events:Event = new Event("Done Loading");
+				dispatchEvent(events);
+			}
+			
+			/**
+			 * IWidget interface to receive data object (IWidgetContext).
+			 * Store the iwidgetcontext so we can receieve data later.
+			 */
+			public function onInit(context:IWidgetContext):void
+			{
+				_context = context;
+
+				treeContentService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT SUBSTRING(vw_workforce.\"Year\",3, 10) AS Year , vw_workforce.\"BOD\", SUM(vw_workforce.\"FTEs\") FROM public.vw_workforce GROUP BY Year, vw_workforce.\"BOD\" ORDER BY Year, vw_workforce.\"BOD\"";
+				treeContentService.send();
+				
+				
+				
+			}
+			
+			/**
+			 * IWidget interface that fires when a new query is done.
+			 * We can access the data from the query by using our
+			 * iwidgetcontext object context.getQuery_TopResults().getTopDocuments();
+			 */
+			public function onReceiveNewQuery():void
+			{
+				//Not used for IRS Data
+			}
+			
+			
+			/**
+			 * Result event for mapreduce call, checks if it was successful then formats json
+			 * response to XML to be displayed in a flex tree.
+			 */
+			protected function treeContentServiceResult(event:ResultEvent):void
+			{					
+				var data:Object = JSONDecoder.decode(event.result as String);
+				if ( data.response.success.toString() == "true" )
+				{
+					var headers:Array = data.data.RESULT[0].HEADER;
+					var usefulData:Array = data.data.RESULT[0].DATA;
+					
+					listData = <itemlist/>;
+					var currentNode:XML = null;
+					var yearlyNode:XML = null;
+					var openItems:XML = <xmlList/>;
+					
+					for each (var row:Array in usefulData)
+					{
+						if (currentNode == null && yearlyNode == null) // Begin "Yearly" bar (First element)
+						{
+							yearlyNode = <titleBar pName="Year" titlebar="true" isOpen="true" />;
+							listData.appendChild(yearlyNode);
+							currentNode = yearlyNode;
+							tree.expandItem(newBodLabel,true, true);
+						}
+						
+						if (currentNode.@year != row[0])
+						{
+							var newYear:XML = <year/>;
+							newYear.@pName = row[0];
+							newYear.@year = row[0];
+							newYear.@pct = 0;
+							yearlyNode.appendChild(newYear);
+							var newBodLabel:XML = <titleBar pName="BOD" titlebar="true" isOpen="true"/>;
+							newBodLabel.@year = row[0];
+							newYear.appendChild(newBodLabel);
+							tree.expandItem(newBodLabel,true, true);
+							currentNode = newBodLabel;
+						}
+						
+						var newXML:XML = <bod/>;
+						newXML.@pName = row[1];
+						newXML.@year = row[0];
+						newXML.@bod = row[1];
+						newXML.@FTEs = row[2];
+						newXML.@originalFTE = row[2];
+						newXML.@pct = 0;
+						
+						
+						currentNode.appendChild(newXML);
+					}	
+					
+					tree.itemRenderer = new ClassFactory( TreeItemRendererV2 );
+					tree.dataProvider = listData;
+					tree.setStyle("skinClass","TreeSkin");
+					tree.openItems = listData..titleBar;
+					globalText.x = tree.width - 55;
+					
+					
+				}
+				else  //The API returned success=false (Usually means you're not logged in)
+				{
+					cursorManager.removeAllCursors();
+					Alert.show("Error retrieving Data.\n " + (data.response.message as String));
+				}				
+			}
+			
+			/**
+			 * Error sending API request.
+			 */
+			protected function treeContentServiceFault(event:FaultEvent):void
+			{
+				cursorManager.removeAllCursors();
+				Alert.show("Error retrieving Workforce Data\n" + event.fault.message);
+			}
+			
+			/**
+			 * @returns A list of supported formats, displayed in a context menu in the format
+			 * "Export <string>" - these are called with "onGenerateExportData"
+			 * Note this doesn't cover the "built-in" Alive PDF export.
+			 * However if the developer specifies PDF and onGeneratePdf() returns non-null then this will be used.
+			 */
+			
+			public function supportedExportFormats():ArrayCollection
+			{
+				var ac:ArrayCollection = new ArrayCollection();
+				return ac;
+			}
+			/**
+			 * function to build a pdf version of the widget
+			 * 
+			 * @return pdf version of the widget 
+			 */
+			public function onGeneratePDF(printPDF:PDF, title:String):PDF
+			{
+				return null;
+			}
+			
+			/**
+			 * function to rescale the module when the parent container is being resized
+			 * 
+			 * @param newHeight The new height the component needs to be set to
+			 * @param newWidth The new width the component needs to be set to
+			 */ 
+			public function onParentResize(newHeight:Number,newWidth:Number):void
+			{
+				this.height = newHeight;
+				this.width = newWidth;
+			}
+			
+			/**
+			 * This function gets called when the workspace is being saved.
+			 * return null if no save string is needed.
+			 * 
+			 * @return a string this widget can use to reload state
+			 */
+			public function onSaveWidgetOptions():Object
+			{
+				return null;
+			}
+			
+			/**
+			 * Allow users to export the widget contents in the specified format
+			 * @format filename: the filename+path to which the data will be written (in case it needs to be embedded)
+			 * @param format: the format from the "supportedFormats" call
+			 * 
+			 * @returns a ByteArray containing the data to output
+			 */
+			public function onGenerateExportData(filename:String, format:String):ByteArray
+			{
+				return null;
+			}
+			
+			/**
+			 * IWidget interface that fires when a new filter is done (including from ourself)
+			 * We can access the data fromt he filter by using our
+			 * iwidgetcontext object _context.getQuery_FilteredResults().getTopDocuments();
+			 */  
+			public function onReceiveNewFilter():void
+			{
+				// Not used for IRS Data
+			}
+			
+			/**
+			 * If a save string has been saved from 'getSaveString' then
+			 * when the app gets reloaded the last save string
+			 * will be passed to this function.
+			 * 
+			 * @param saveString the last save string or null if there was none
+			 */
+			public function onLoadWidgetOptions(widgetOptions:Object):void
+			{
+				this.widgetOptions = widgetOptions;
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:HTTPService id="treeContentService"
+					   result="treeContentServiceResult(event)"
+					   fault="treeContentServiceFault(event)"/>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<!-- headerContent is neccessary for title to show when this is a widget -->
+	<components:headerContent>	
+		<s:HGroup gap="-3">		
+		</s:HGroup>	
+	</components:headerContent>
+	<mx:VBox id="main" height="100%" width="100%">
+		<mx:VBox width="100%">
+			<mx:HBox width="100%" borderColor="#000000">
+				<s:RadioButton id="glbPct" label="Apply Global Percentage Rate:" selected="true" groupName="scenario" />
+				<s:Spacer width="100" />
+				<s:TextInput id="globalText" width="40" height="20"  enabled="{glbPct.selected}" />
+			</mx:HBox>
+			
+			<s:RadioButton id="pctRt" label="Specify Percentage Rate:" groupName="scenario" />
+		</mx:VBox>
+		
+	
+	<mx:Tree id="tree"
+			 showRoot="false"
+			 paddingTop="0"
+			 labelField="@pName"
+			 height="100%"
+			 width="100%"
+			 enabled="{pctRt.selected}"
+			 disclosureOpenIcon="{iconMinus}"
+			 disclosureClosedIcon="{iconPlus}"
+			 folderClosedIcon="{null}"
+			 folderOpenIcon="{null}"
+			 defaultLeafIcon="{null}"
+			 depthColors="[#660000, #D8D8D8, #330000, #D8D8D8, #D8D8D8, #D8D8D8]"
+			 mouseEnabled="false"
+			 borderStyle="none"
+			 contentBackgroundColor="#D8D8D8"
+			 selectionColor="{null}"
+			 useRollOver="false"
+			 itemClick="{tree.selectedItem = null}"
+			 verticalScrollPolicy="auto"/>
+		<!--<s:SkinnableContainer width="100%" height="100%" skinClass="LinearBackgroundFillSkin">
+		</s:SkinnableContainer> -->
+	</mx:VBox>
+	
+</components:WidgetModule>

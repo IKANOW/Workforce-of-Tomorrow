@@ -39,7 +39,7 @@
 	<params>
 		<param name="configuratorActive">off</param>
 		<param name="configuratorButton">on</param>
-		<param name="viewType">grid</param>
+		<param name="viewType">charts</param>
 		<param name="chartType">bar</param>
 		<param name="showChartZeroValues">off</param>
 		<param name="showHeaders">on</param>

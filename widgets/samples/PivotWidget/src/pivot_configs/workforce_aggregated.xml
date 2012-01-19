@@ -1,6 +1,6 @@
 <config>
 	<dataSource type="CSV">
-		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT "FTEs", "Year", "BOD" FROM vw_workload]]></filename>
+		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT * FROM vw_workforce]]></filename>
 	</dataSource>
 	<defaultSlice name="Default Report">
 		<axes>
@@ -20,7 +20,7 @@
 
 	<params>
 		<param name="configuratorActive">off</param>
-		<param name="configuratorButton">on</param>
+		<param name="configuratorButton">off</param>
 		<param name="viewType">charts</param>
 		<param name="chartType">bar</param>
 		<param name="showChartZeroValues">off</param>
@@ -28,7 +28,7 @@
 		<param name="fitGridlines">off</param>
 		<param name="showTotals">on</param>
 		<param name="showGrandTotals">on</param>
-		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f04b24a23351f21cef6e8e5</param>
+		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f05d6b023358a8532f48da4</param>
 		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
 		<param name="emptyDataWarning">off</param>
 	</params>

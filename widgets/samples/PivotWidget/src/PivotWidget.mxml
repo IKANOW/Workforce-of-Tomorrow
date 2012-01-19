@@ -58,7 +58,9 @@
 			private var titleArray:ArrayCollection = new ArrayCollection();
 			private var widgetOptions:Object = null;
 			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
-			private var CONFIG_LOC:String = "pivot_configs/workload_bod.xml";
+			private var CONFIG_LOC:String = "pivot_configs/local.xml";
+			private var CURRENT_VIEW:String = null;
+			private var CURRENT_CHART:String = null;
 			
 			/**
 			 * Method fired when module is done loading.  Sends
@@ -78,6 +80,45 @@
 			public function onInit(context:IWidgetContext):void
 			{
 				_context = context;
+				
+				//populate scenarios dropdown
+				scenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT DISTINCT saved_scenarios.\"Name\" FROM public.saved_scenarios";
+				scenarioService.send();
+			}
+			
+			protected function scenarioServiceResult(event:ResultEvent):void
+			{					
+				var data:Object = JSONDecoder.decode(event.result as String);
+				if ( data.response.success.toString() == "true" )
+				{
+					//Manipulate response data here	
+					
+					var sdp:ArrayList = new ArrayList();
+					
+					for each (var s:String in data.data.RESULT[0].DATA)
+					{
+						sdp.addItem(s);
+					}
+					
+					sdp.addItemAt("Original Scenario", 0);
+					scenarioDrop.dataProvider = sdp;
+					scenarioDrop.selectedIndex = 0;
+				}
+				else  //The API returned success=false (Usually means you're not logged in)
+				{
+					cursorManager.removeAllCursors();
+					Alert.show("Error retrieving Data.\n " + (data.response.message as String));
+				}				
+			}
+			
+			
+			/**
+			 * Error sending API request.
+			 */
+			protected function scenarioServiceFault(event:FaultEvent):void
+			{
+				cursorManager.removeAllCursors();
+				Alert.show("Error retrieving Workforce Data\n" + event.fault.message);
 			}
 			
 			/**
@@ -169,6 +210,11 @@
 				this.widgetOptions = widgetOptions;
 			}
 			
+			function xmlLoaded(event:Event):void
+			{
+				originalXML = XML(myLoader.data);
+				trace("Data loaded.");
+			}
 			
 			private function get swfFilePath():String {
 				// Flex 4
@@ -261,42 +307,108 @@
 				{
 					case "Grid":
 					{
+						CURRENT_VIEW = ViewType.GRID;
+						CURRENT_CHART = "";
 						pivotChart.showGrid();
 						break;
 					}
 					case "Bar":
 					{
+						CURRENT_VIEW = ViewType.CHARTS;
+						CURRENT_CHART = ChartType.BAR;
 						pivotChart.showCharts(ChartType.BAR);
 						break;
 					}
 					case "Stack":
 					{
+						CURRENT_VIEW = ViewType.CHARTS;
+						CURRENT_CHART = ChartType.BAR_STACK;
 						pivotChart.showCharts(ChartType.BAR_STACK);
 						break;
 					}
 					case "Scatter":
 					{
+						CURRENT_VIEW = ViewType.CHARTS;
+						CURRENT_CHART = ChartType.SCATTER;
 						pivotChart.showCharts(ChartType.SCATTER);
 						break;
 					}
 					case "Cylinder":
 					{
+						CURRENT_VIEW = ViewType.CHARTS;
+						CURRENT_CHART = ChartType.CYLINDER;
 						pivotChart.showCharts(ChartType.CYLINDER);
 						break;
 					}
 					case "Pie":
 					{
+						CURRENT_VIEW = ViewType.CHARTS;
+						CURRENT_CHART = ChartType.PIE;
 						pivotChart.showCharts(ChartType.PIE);
 						break;
 					}
 					case "Line":
 					{
+						CURRENT_VIEW = ViewType.CHARTS;
+						CURRENT_CHART = ChartType.LINE;
 						pivotChart.showCharts(ChartType.LINE);
 						break;
 					}
 				}
 				
 				viewDrop.selectedIndex = 0;
+			}
+			
+			var originalXML:XML = null;
+			var myLoader:URLLoader = null;
+			
+			protected function scenario_changeHandler(event:IndexChangeEvent):void {
+				
+				if (scenarioDrop.selectedIndex == 0)
+				{
+					pivotChart.configUrl = CONFIG_LOC;
+					if (CURRENT_VIEW != null && CURRENT_CHART != null)
+					{
+						pivotChart.viewType = CURRENT_VIEW;
+						pivotChart.chartType = CURRENT_CHART;
+					}
+					pivotChart.load();
+					return;
+				}
+				else
+				{
+					if (originalXML == null)
+					{
+						originalXML = new XML();
+						var myXMLURL:URLRequest = new URLRequest(CONFIG_LOC);
+						myLoader = new URLLoader(myXMLURL);
+						myLoader.addEventListener("complete", xmlLoaded);
+					}
+					var newQuery:String = "SELECT vw_workforce.\"FTEs\"*saved_scenarios.\"Hiring Percentage\" as \"FTEs\",vw_workforce.\"FTEs\" as \"Original FTEs\",vw_workforce.\"Year\",vw_workforce.\"Series\",vw_workforce.\"BOD\",saved_scenarios.\"Date Created\",saved_scenarios.\"Owner\",saved_scenarios.\"Name\",saved_scenarios.\"View\",saved_scenarios.\"BOD\",saved_scenarios.\"Year\",saved_scenarios.\"Hiring Percentage\" FROM public.vw_workforce, public.saved_scenarios WHERE saved_scenarios.\"Year\" = vw_workforce.\"Year\" AND saved_scenarios.\"BOD\" = vw_workforce.\"BOD\" AND saved_scenarios.\"Name\" = 'Hand Coded Scenario'";
+					var source_url:String = "http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query="+ newQuery;
+					pivotChart.configUrl = null;
+					pivotChart.filename = source_url;
+					pivotChart.rows = pivotChart.getRows();
+					pivotChart.columns = pivotChart.getColumns();
+					pivotChart.pages = pivotChart.getPages();
+					pivotChart.measures = pivotChart.getMeasures();
+					pivotChart.configuratorButton = originalXML.params[0].param.(@name=="configuratorButton");
+					pivotChart.localSettingsURL = originalXML.params[0].param.(@name=="localSettingsURL");
+					pivotChart.styleSheetName = originalXML.style.@source;
+					if (CURRENT_VIEW == null || CURRENT_CHART == null)
+					{
+						pivotChart.viewType = originalXML.params[0].param.(@name=="viewType").toString();
+						pivotChart.chartType = originalXML.params[0].param.(@name=="chartType").toString();
+					}
+					else
+					{
+						pivotChart.viewType = CURRENT_VIEW;
+						pivotChart.chartType = CURRENT_CHART;
+					}
+					pivotChart.load();
+				}
+				
+				
 			}
 			
 			private function saveToServer():void {
@@ -318,13 +430,14 @@
 			
 		]]>
 	</fx:Script>
+	<fx:Declarations>
+		<s:HTTPService id="scenarioService"
+					   result="scenarioServiceResult(event)"
+					   fault="scenarioServiceFault(event)"/>
+	</fx:Declarations>
 	<components:headerContent>
 		
 		<s:HGroup gap="-3">
-			
-			
-			
-			<!-- Export Options -->
 
 			<components:WidgetDropDownList id="exportDrop"
 										   verticalScrollPolicy="off"
@@ -343,8 +456,15 @@
 										   change="setTimeout( view_changeHandler, 100, event )">
 				
 				<components:dataProvider>
-					<s:ArrayList source="[View As...,Grid,Bar,Scatter,Cylinder,Pie,Line]" />
+					<s:ArrayList source="[Display As...,Grid,Bar,Scatter,Cylinder,Pie,Line]" />
 				</components:dataProvider>
+			</components:WidgetDropDownList>
+			
+			<components:WidgetDropDownList id="scenarioDrop"
+										   verticalScrollPolicy="off"
+										   horizontalScrollPolicy="off"
+										   selectedIndex="0"
+										   change="setTimeout( scenario_changeHandler, 100, event )">
 			</components:WidgetDropDownList>
 			
 			<!-- Grid Toggle Button -->
@@ -357,40 +477,6 @@
 		
 	</components:headerContent>
 	<mx:Canvas label="Switch View" width="100%" height="100%">
-		<!--<mx:HBox id="reportBox" width="100%">
-			 <mx:Button x="10" y="10" label="Export" width="100" height="90" color="#0000FF" click="showExport()"/>
-			<mx:Button x="115" y="10" label="Grid" icon="@Embed(source='images/Table.png')" width="100" height="90" color="#0000FF" click="pivotChart.showGrid()"/>
-			<mx:Button x="220" y="10" label="Bar" icon="@Embed(source='images/Bar Chart.png')" width="100" height="90" color="#0000FF" click="pivotChart.showCharts(ChartType.BAR)"/>
-			<mx:Button x="325" y="10" label="Line" icon="@Embed(source='images/Line Chart.png')" width="100" height="90" color="#0000FF" click="pivotChart.showCharts(ChartType.LINE)"/>
-			<mx:Button x="430" y="10" label="Pie" icon="@Embed(source='images/Pie Chart.png')" width="100" height="90" color="#0000FF" click="pivotChart.showCharts(ChartType.PIE)"/>
-			<mx:Button x="535" y="10" label="Fields" width="100" height="90" color="#0000FF" click="pivotChart.openFieldsList()"/> 
-			<mx:VBox x="640" y="10" width="400" height="90">
-				<mx:ComboBox id="cb" prompt="Please Select"
-							 selectedIndex="-1"
-							 change="cb_changeHandler(event);"
-							 width="400" height="20"
-							 x="535" y="10">
-					<mx:dataProvider>
-						<fx:Object label="Run Workload 1" data="qWorkload1.csv" />
-						<fx:Object label="Run Workload 2" data="qWorkload2.csv" />
-						<fx:Object label="Run Workload Level 2" data="qWorkloadLevel2.csv" />
-						<fx:Object label="Run Workforce Level 2" data="qWorkforceLevel2.csv" />
-					</mx:dataProvider>
-				</mx:ComboBox>
-				<mx:TextArea x="535" y="55" id="query" width="400" height="64"/>
-			</mx:VBox>
-			
-			<mx:Button x="1045" y="10" label="Execute SQL" width="100" height="90" color="#0000FF" click="executeSQL()"/>
-		</mx:HBox>
-		<mx:HBox id="exportBox" visible="false" width="100%">
-			<mx:Button x="1140" y="10" label="Report" width="100" height="90" color="#0000FF" />
-			<mx:Button label="Raw CSV" icon="@Embed(source='images/file_csv.png')" width="100" height="90" color="#0000FF" click="exportRawCSV()"/>
-			<mx:Button label="CSV to file" icon="@Embed(source='images/file_csv.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.CSV);"/>
-			<mx:Button label="Image" icon="@Embed(source='images/file_png.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.IMAGE)"/>
-			<mx:Button label="PDF" icon="@Embed(source='images/file_pdf.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.PDF)"/>
-			<mx:Button label="Excel" icon="@Embed(source='images/file_xls.png')" width="100" height="90" color="#0000FF" click="pivotChart.export(ExportType.EXCEL)"/>
-			<mx:Button label="Print" icon="@Embed(source='images/printer.png')" width="100" height="90" color="#0000FF" click="pivotChart.print()"/>				
-		</mx:HBox>-->
 		
 		<pivot:FlexPivotComponent id="pivotChart" width="100%" height="100%" x="1"
 								  configUrl="{this.CONFIG_LOC}"
