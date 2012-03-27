@@ -4,7 +4,8 @@
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
 		   xmlns:pivot="com.flexmonster.pivot.*"
 		   xmlns:components="com.ikanow.infinit.e.widget.library.components.*"
-		   implements="com.ikanow.infinit.e.widget.library.widget.IWidget" 
+		   implements="com.ikanow.infinit.e.widget.library.widget.IWidget"
+		   creationComplete="widgetmodule2_creationCompleteHandler(event)"
 		   >
 	<fx:Style source="/com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
 	<fx:Style>
@@ -33,6 +34,7 @@
 			import com.flexmonster.pivot.view.charts.ChartType;
 			import com.flexmonster.pivot.view.grid.renderer.PivotGridCellRenderer;
 			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
+			import com.ikanow.infinit.e.widget.library.utility.URLEncoder;
 			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;
 			
 			import flash.net.navigateToURL;
@@ -43,7 +45,10 @@
 			import mx.controls.Alert;
 			import mx.controls.Tree;
 			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -54,13 +59,21 @@
 			
 			import spark.events.IndexChangeEvent;
 			
+			import system.data.maps.HashMap;
+			
 			private var _context:IWidgetContext;
 			private var titleArray:ArrayCollection = new ArrayCollection();
 			private var widgetOptions:Object = null;
-			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
-			private var CONFIG_LOC:String = "pivot_configs/local.xml";
-			private var CURRENT_VIEW:String = null;
-			private var CURRENT_CHART:String = null;
+			private var API_SERVER:String = "http://infinite.wfot.ikanow.com/api/";
+			private var CONFIG_LOC:String = "http://infinite.wfot.ikanow.com/api/share/get/4efe62c02335b5055c00d4da";
+			private var ORIGINAL_DATA_LOC:String = null;
+			private var scenarioIds:ArrayList = null;
+			private var scenarioId:String = "";
+			private var scenariodp:ArrayList = null;
+			private var sl:scenarioLoader = new scenarioLoader();
+			
+			private var LOAD_MODE:String;
+			
 			
 			/**
 			 * Method fired when module is done loading.  Sends
@@ -80,46 +93,33 @@
 			public function onInit(context:IWidgetContext):void
 			{
 				_context = context;
-				
-				//populate scenarios dropdown
-				scenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT DISTINCT saved_scenarios.\"Name\" FROM public.saved_scenarios";
-				scenarioService.send();
 			}
+
 			
-			protected function scenarioServiceResult(event:ResultEvent):void
-			{					
-				var data:Object = JSONDecoder.decode(event.result as String);
-				if ( data.response.success.toString() == "true" )
-				{
-					//Manipulate response data here	
-					
-					var sdp:ArrayList = new ArrayList();
-					
-					for each (var s:String in data.data.RESULT[0].DATA)
-					{
-						sdp.addItem(s);
-					}
-					
-					sdp.addItemAt("Original Scenario", 0);
-					scenarioDrop.dataProvider = sdp;
-					scenarioDrop.selectedIndex = 0;
-				}
-				else  //The API returned success=false (Usually means you're not logged in)
-				{
-					cursorManager.removeAllCursors();
-					Alert.show("Error retrieving Data.\n " + (data.response.message as String));
-				}				
-			}
-			
-			
-			/**
-			 * Error sending API request.
-			 */
-			protected function scenarioServiceFault(event:FaultEvent):void
+			private function launchPopUp(e:MouseEvent):void 
 			{
-				cursorManager.removeAllCursors();
-				Alert.show("Error retrieving Workforce Data\n" + event.fault.message);
+				if (ORIGINAL_DATA_LOC == null && pivotChart.report != null)
+				{
+					ORIGINAL_DATA_LOC = pivotChart.report.filename;
+				}
+				
+				if (ORIGINAL_DATA_LOC.indexOf("wlwf=wf") != -1)
+					LOAD_MODE = loaderMode.WORKFORCE;
+				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=wl") != -1)
+					LOAD_MODE = loaderMode.WORKLOAD;
+				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=union") != -1)
+					LOAD_MODE = loaderMode.UNION;
+				
+				
+				
+				sl.LOAD_MODE = LOAD_MODE;
+				PopUpManager.addPopUp(sl,this,true);
+				PopUpManager.centerPopUp(sl);
+				
+				sl.submit_button.addEventListener(MouseEvent.CLICK,newScenarioSelected);
+				//sl.myList.addEventListener(ItemClickEvent.ITEM_CLICK,newScenarioSelected);
 			}
+			
 			
 			/**
 			 * IWidget interface that fires when a new query is done.
@@ -210,17 +210,10 @@
 				this.widgetOptions = widgetOptions;
 			}
 			
-			function xmlLoaded(event:Event):void
-			{
-				originalXML = XML(myLoader.data);
-				trace("Data loaded.");
-			}
+			
 			
 			private function get swfFilePath():String {
-				// Flex 4
 				return (FlexGlobals.topLevelApplication.parameters['swfFilePath'] == null) ? 'flexmonster/' : FlexGlobals.topLevelApplication.parameters['swfFilePath']; 
-				// Flex 3
-				//	return (Application.application.parameters['swfFilePath'] == null) ? 'flexmonster/' : Application.application.parameters['swfFilePath'];
 			}
 			
 			private function onGridClick(event:Event):void {
@@ -257,6 +250,7 @@
 				{
 					case "CSV":
 					{
+						pivotChart.showGrid();
 						pivotChart.export(ExportType.CSV)
 						break;
 					}
@@ -281,6 +275,7 @@
 					}
 					case "Excel":
 					{
+						pivotChart.showGrid();
 						pivotChart.export(ExportType.EXCEL)
 						break;
 					}
@@ -307,50 +302,36 @@
 				{
 					case "Grid":
 					{
-						CURRENT_VIEW = ViewType.GRID;
-						CURRENT_CHART = "";
 						pivotChart.showGrid();
 						break;
 					}
 					case "Bar":
 					{
-						CURRENT_VIEW = ViewType.CHARTS;
-						CURRENT_CHART = ChartType.BAR;
 						pivotChart.showCharts(ChartType.BAR);
 						break;
 					}
 					case "Stack":
 					{
-						CURRENT_VIEW = ViewType.CHARTS;
-						CURRENT_CHART = ChartType.BAR_STACK;
 						pivotChart.showCharts(ChartType.BAR_STACK);
 						break;
 					}
 					case "Scatter":
 					{
-						CURRENT_VIEW = ViewType.CHARTS;
-						CURRENT_CHART = ChartType.SCATTER;
 						pivotChart.showCharts(ChartType.SCATTER);
 						break;
 					}
 					case "Cylinder":
 					{
-						CURRENT_VIEW = ViewType.CHARTS;
-						CURRENT_CHART = ChartType.CYLINDER;
 						pivotChart.showCharts(ChartType.CYLINDER);
 						break;
 					}
 					case "Pie":
 					{
-						CURRENT_VIEW = ViewType.CHARTS;
-						CURRENT_CHART = ChartType.PIE;
 						pivotChart.showCharts(ChartType.PIE);
 						break;
 					}
 					case "Line":
 					{
-						CURRENT_VIEW = ViewType.CHARTS;
-						CURRENT_CHART = ChartType.LINE;
 						pivotChart.showCharts(ChartType.LINE);
 						break;
 					}
@@ -359,57 +340,6 @@
 				viewDrop.selectedIndex = 0;
 			}
 			
-			var originalXML:XML = null;
-			var myLoader:URLLoader = null;
-			
-			protected function scenario_changeHandler(event:IndexChangeEvent):void {
-				
-				if (scenarioDrop.selectedIndex == 0)
-				{
-					pivotChart.configUrl = CONFIG_LOC;
-					if (CURRENT_VIEW != null && CURRENT_CHART != null)
-					{
-						pivotChart.viewType = CURRENT_VIEW;
-						pivotChart.chartType = CURRENT_CHART;
-					}
-					pivotChart.load();
-					return;
-				}
-				else
-				{
-					if (originalXML == null)
-					{
-						originalXML = new XML();
-						var myXMLURL:URLRequest = new URLRequest(CONFIG_LOC);
-						myLoader = new URLLoader(myXMLURL);
-						myLoader.addEventListener("complete", xmlLoaded);
-					}
-					var newQuery:String = "SELECT vw_workforce.\"FTEs\"*saved_scenarios.\"Hiring Percentage\" as \"FTEs\",vw_workforce.\"FTEs\" as \"Original FTEs\",vw_workforce.\"Year\",vw_workforce.\"Series\",vw_workforce.\"BOD\",saved_scenarios.\"Date Created\",saved_scenarios.\"Owner\",saved_scenarios.\"Name\",saved_scenarios.\"View\",saved_scenarios.\"BOD\",saved_scenarios.\"Year\",saved_scenarios.\"Hiring Percentage\" FROM public.vw_workforce, public.saved_scenarios WHERE saved_scenarios.\"Year\" = vw_workforce.\"Year\" AND saved_scenarios.\"BOD\" = vw_workforce.\"BOD\" AND saved_scenarios.\"Name\" = 'Hand Coded Scenario'";
-					var source_url:String = "http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query="+ newQuery;
-					pivotChart.configUrl = null;
-					pivotChart.filename = source_url;
-					pivotChart.rows = pivotChart.getRows();
-					pivotChart.columns = pivotChart.getColumns();
-					pivotChart.pages = pivotChart.getPages();
-					pivotChart.measures = pivotChart.getMeasures();
-					pivotChart.configuratorButton = originalXML.params[0].param.(@name=="configuratorButton");
-					pivotChart.localSettingsURL = originalXML.params[0].param.(@name=="localSettingsURL");
-					pivotChart.styleSheetName = originalXML.style.@source;
-					if (CURRENT_VIEW == null || CURRENT_CHART == null)
-					{
-						pivotChart.viewType = originalXML.params[0].param.(@name=="viewType").toString();
-						pivotChart.chartType = originalXML.params[0].param.(@name=="chartType").toString();
-					}
-					else
-					{
-						pivotChart.viewType = CURRENT_VIEW;
-						pivotChart.chartType = CURRENT_CHART;
-					}
-					pivotChart.load();
-				}
-				
-				
-			}
 			
 			private function saveToServer():void {
 				this.pivotChart.save(
@@ -426,14 +356,67 @@
 				pivotChart.save('report.xml', DestinationType.FILE)
 			}
 			
+			protected function newScenarioSelected(event:MouseEvent):void
+			{
+				var append:String = "";
+				
+				if (ORIGINAL_DATA_LOC == null)
+				{
+					ORIGINAL_DATA_LOC = pivotChart.report.filename;
+				}
+				
+				if (LOAD_MODE == loaderMode.UNION)
+				{
+					var workforceID:String = "0";
+					if (sl.unionWorkforceList.selectedItem != null)
+						workforceID = sl.unionWorkforceList.selectedItem.id.toString();
+					
+					var workloadID:String = "0";
+					if (sl.unionWorkloadList.selectedItem != null)
+						workloadID = sl.unionWorkloadList.selectedItem.id.toString();
+					
+					append = "&wfScenarioId=" + workforceID + "&wlScenarioId=" + workloadID;
+				}
+				else
+				{
+					var scenarioUID:String = sl.myList.selectedItem.id.toString();
+					append = "&scenarioId=" + scenarioUID
+				}
+				
+				
+				var source_url:String  = ORIGINAL_DATA_LOC + append;	
+				var report:ReportValueObject = pivotChart.report;
+				report.filename = source_url;
+				pivotChart.report = report;
+				pivotChart.load();
+			}
+
 			
+			protected function widgetmodule2_creationCompleteHandler(event:FlexEvent):void
+			{
+				if (ORIGINAL_DATA_LOC == null && pivotChart.report != null)
+				{
+					ORIGINAL_DATA_LOC = pivotChart.report.filename;
+				
+				
+				if (ORIGINAL_DATA_LOC.indexOf("wlwf=wf") != -1)
+					LOAD_MODE = loaderMode.WORKFORCE;
+				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=wl") != -1)
+					LOAD_MODE = loaderMode.WORKLOAD;
+				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=union") != -1)
+					LOAD_MODE = loaderMode.UNION;
+				}
+			}
+			
+			protected function pivotChart_renderCompleteHandler(event:Event):void
+			{
+				
+			}
 			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:HTTPService id="scenarioService"
-					   result="scenarioServiceResult(event)"
-					   fault="scenarioServiceFault(event)"/>
+		
 	</fx:Declarations>
 	<components:headerContent>
 		
@@ -445,7 +428,7 @@
 										   selectedIndex="0" 
 										   change="setTimeout( export_changeHandler, 100, event )">
 				<components:dataProvider>
-					<s:ArrayList source="[Export To...,CSV,CSV Raw,Image,PDF,Excel,Html]" />
+					<s:ArrayList source="[Export To...,CSV,Image,PDF,Excel,Html]" />
 				</components:dataProvider>
 			</components:WidgetDropDownList>
 			
@@ -456,30 +439,26 @@
 										   change="setTimeout( view_changeHandler, 100, event )">
 				
 				<components:dataProvider>
-					<s:ArrayList source="[Display As...,Grid,Bar,Scatter,Cylinder,Pie,Line]" />
+					<s:ArrayList source="[Display As...,Grid,Bar,Stack,Pie]" />
 				</components:dataProvider>
 			</components:WidgetDropDownList>
 			
-			<components:WidgetDropDownList id="scenarioDrop"
-										   verticalScrollPolicy="off"
-										   horizontalScrollPolicy="off"
-										   selectedIndex="0"
-										   change="setTimeout( scenario_changeHandler, 100, event )">
-			</components:WidgetDropDownList>
+			<components:WidgetToggleButton id="scenarioLoadButton"
+										   label="Scenario Loader"
+										   toolTip="Scenario Loader"
+										   click="launchPopUp(event)" />
 			
 			<!-- Grid Toggle Button -->
 			<components:WidgetToggleButton id="printButton"
 										   label="Print"
 										   toolTip="Print"
-										   click="pivotChart.print()" />
+										   click="pivotChart.print()" visible="false" includeInLayout="false" />
 			
 		</s:HGroup>
 		
 	</components:headerContent>
 	<mx:Canvas label="Switch View" width="100%" height="100%">
 		
-		<pivot:FlexPivotComponent id="pivotChart" width="100%" height="100%" x="1"
-								  configUrl="{this.CONFIG_LOC}"
-								  swfFilePath="{this.swfFilePath}"/>
+		<pivot:FlexPivotComponent id="pivotChart" width="100%" height="100%" x="1" styleName="chartsView" renderComplete="pivotChart_renderCompleteHandler(event)" swfFilePath="{this.swfFilePath}" configUrl="{this.CONFIG_LOC}"/>
 	</mx:Canvas>
 </components:WidgetModule>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" xmlns:local="*"
+			   xmlns:mx="library://ns.adobe.com/flex/mx" width="600" height="400" title="Scenario Loader"
+			   close="closeWindow(event)" preinitialize="titlewindow1_preinitializeHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			private var API_SERVER:String = "http://infinite.wfot.ikanow.com/api/";
+			private var dataProvider:ArrayCollection;
+			public var LOAD_MODE:String;
+			 
+	         private function closeWindow(e:CloseEvent):void 
+			 {
+	            PopUpManager.removePopUp(e.target as IFlexDisplayObject);
+	         }
+			
+			
+			protected function scenarioServiceResult(event:ResultEvent):void
+			{
+				myList.dataProvider = scenarioServiceResultGlobal(event);
+			}
+			protected function scenarioUnionWorkforceServiceResult(event:ResultEvent):void
+			{
+				unionWorkforceList.dataProvider = scenarioServiceResultGlobal(event);
+			}
+			protected function scenarioUnionWorkloadServiceResult(event:ResultEvent):void
+			{
+				unionWorkloadList.dataProvider = scenarioServiceResultGlobal(event);
+			}
+			
+			protected function scenarioServiceResultGlobal(event:ResultEvent):ArrayCollection
+			{					
+				var data:Object = com.ikanow.infinit.e.widget.library.utility.JSONDecoder.decode(event.result as String);
+				if ( data.response.success.toString() == "true" )
+				{
+					//name, uid, description, owner, updated
+					
+					dataProvider = new ArrayCollection();
+					
+					var defaultObject:Object = new Object();
+					defaultObject.name = "Default Scenario";
+					defaultObject.id = "0";
+					defaultObject.creator = "";
+					defaultObject.date = "";
+					defaultObject.description = "The default scenario data without modification";
+					
+					dataProvider.addItem(defaultObject);
+					
+					for each (var s:Array in data.data.RESULT[0].DATA)
+					{
+						var obj:Object = new Object();
+						obj.name = s[0].toString();
+						obj.id = s[1].toString();
+						obj.creator = s[3].toString();
+						obj.date = s[4].toString();
+						obj.description = s[2].toString();
+						
+						dataProvider.addItem(obj);
+					}
+					
+					return dataProvider;
+				}
+				else  //The API returned success=false (Usually means you're not logged in)
+				{
+					cursorManager.removeAllCursors();
+					Alert.show("Error retrieving Data.\n " + (data.response.message as String));
+				}		
+				
+				return null;
+			}
+			
+			
+			/**
+			 * Error sending API request.
+			 */
+			protected function scenarioServiceFault(event:FaultEvent):void
+			{
+				cursorManager.removeAllCursors();
+				Alert.show("Error retrieving Data\n" + event.fault.message);
+			}
+			 
+			protected function titlewindow1_preinitializeHandler(event:FlexEvent):void
+			{
+				if (LOAD_MODE == loaderMode.WORKFORCE)
+				{
+					savedScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workforce=TRUE";
+					savedScenarioService.send();
+				}
+				else if (LOAD_MODE == loaderMode.WORKLOAD)
+				{
+					savedScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workload=TRUE";
+					savedScenarioService.send();
+				}
+				else if (LOAD_MODE == loaderMode.UNION)
+				{
+					savedUnionWorkforceScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workforce=TRUE";
+					savedUnionWorkforceScenarioService.send();
+					savedUnionWorkloadScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workload=TRUE";
+					savedUnionWorkloadScenarioService.send();
+				}
+				
+			}
+			
+			protected function itemIndexChangeHandler(event:IndexChangeEvent):void
+			{
+				//ta.text=myList.selectedItem.description;
+				//PopUpManager.removePopUp(this as IFlexDisplayObject);
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this as IFlexDisplayObject);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:HTTPService id="savedScenarioService"
+					   result="scenarioServiceResult(event)"
+					   fault="scenarioServiceFault(event)"/>
+		<s:HTTPService id="savedUnionWorkforceScenarioService"
+					   result="scenarioUnionWorkforceServiceResult(event)"
+					   fault="scenarioServiceFault(event)"/>
+		<s:HTTPService id="savedUnionWorkloadScenarioService"
+					   result="scenarioUnionWorkloadServiceResult(event)"
+					   fault="scenarioServiceFault(event)"/>
+	</fx:Declarations>
+	<s:VGroup width="100%" height="100%" contentBackgroundColor="0xDDDDDD">
+		<s:HGroup width="100%" height="100%">
+			<s:List id="myList" height="100%" width="100%" 
+					itemRenderer="scenarioLoaderListItemRenderer"
+					alternatingItemColors="[#DDDDDD,#D1D1D1]" contentBackgroundColor="0xDDDDDD"
+					change="itemIndexChangeHandler(event)" visible="{LOAD_MODE != loaderMode.UNION}" includeInLayout="{LOAD_MODE != loaderMode.UNION}"/>
+			<s:VGroup width="50%" height="100%" horizontalAlign="center" paddingTop="5" visible="{LOAD_MODE == loaderMode.UNION}" includeInLayout="{LOAD_MODE == loaderMode.UNION}" >
+				<s:Label text="Workforce Scenarios" fontWeight="bold"/>
+				<s:List id="unionWorkforceList" height="100%" width="100%" 
+						itemRenderer="scenarioLoaderListItemRenderer"
+						alternatingItemColors="[#DDDDDD,#D1D1D1]" contentBackgroundColor="0xDDDDDD"
+						change="itemIndexChangeHandler(event)" visible="{LOAD_MODE == loaderMode.UNION}" includeInLayout="{LOAD_MODE == loaderMode.UNION}"/>
+			</s:VGroup>
+			<s:VGroup width="50%" height="100%" horizontalAlign="center" paddingTop="5" visible="{LOAD_MODE == loaderMode.UNION}" includeInLayout="{LOAD_MODE == loaderMode.UNION}" >
+				<s:Label text = "Workload Scenarios" fontWeight="bold"/>
+				<s:List id="unionWorkloadList" height="100%" width="100%" 
+						itemRenderer="scenarioLoaderListItemRenderer"
+						alternatingItemColors="[#DDDDDD,#D1D1D1]" contentBackgroundColor="0xDDDDDD"
+						change="itemIndexChangeHandler(event)" visible="{LOAD_MODE == loaderMode.UNION}" includeInLayout="{LOAD_MODE == loaderMode.UNION}"/>
+			</s:VGroup>			
+		</s:HGroup>
+		<s:HGroup width="100%" horizontalAlign="right" verticalAlign="middle" paddingRight="10" paddingBottom="5">
+			<s:Button id="submit_button" label="Load" click="button1_clickHandler(event)" />
+		</s:HGroup>
+	</s:VGroup>
+</s:TitleWindow>

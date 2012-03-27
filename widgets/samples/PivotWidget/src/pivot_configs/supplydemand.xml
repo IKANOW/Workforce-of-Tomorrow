@@ -1,31 +1,31 @@
 <config>
 	<dataSource type="CSV">
-		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT "BOD","Series","Workstream","Worktype","Year", "FTEs" FROM vw_union]]></filename>
+		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/lever/getresults/4e9c77ef17ef3523b657a890?wlwf=union]]></filename>
 	</dataSource>
 	<defaultSlice name="Default Report">
 		<axes>
 			<axis name="rows">
 				<hierarchy>
-					<dimensionName>[Year]</dimensionName>
-					<hierarchyName>[Year].[Year]</hierarchyName>
+					<dimensionName>[year]</dimensionName>
+					<hierarchyName>[year].[year]</hierarchyName>
 				</hierarchy>
 				<hierarchy>
-					<dimensionName>[BOD]</dimensionName>
-					<hierarchyName>[BOD].[BOD]</hierarchyName>
+					<dimensionName>[bod]</dimensionName>
+					<hierarchyName>[bod].[bod]</hierarchyName>
 				</hierarchy>
 				<hierarchy>
-					<dimensionName>[Workstream]</dimensionName>
-					<hierarchyName>[Workstream].[Workstream]</hierarchyName>
+					<dimensionName>[worktype]</dimensionName>
+					<hierarchyName>[worktype].[worktype]</hierarchyName>
 				</hierarchy>
 				<hierarchy>
-					<dimensionName>[Series]</dimensionName>
-					<hierarchyName>[Series].[Series]</hierarchyName>
+					<dimensionName>[workstream]</dimensionName>
+					<hierarchyName>[workstream].[workstream]</hierarchyName>
 				</hierarchy>
 			</axis>
 			<axis name="columns">
 				<hierarchy>
-					<dimensionName>[Worktype]</dimensionName>
-					<hierarchyName>[Worktype].[Worktype]</hierarchyName>
+					<dimensionName>[Economic Model]</dimensionName>
+					<hierarchyName>[Economic Model].[Economic Model]</hierarchyName>
 				</hierarchy>
 			</axis>
 		</axes>
@@ -34,7 +34,7 @@
 		</measures>
 	</defaultSlice>
 	
-	<style source="http://infinite.wfot.ikanow.com/api/share/get/4f0300f723356dbe3abd02e3"/>
+	<style source="styles/Union.css"/>
 
 	<params>
 		<param name="configuratorActive">off</param>
@@ -49,12 +49,13 @@
 		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f04b24a23351f21cef6e8e5</param>
 		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
 		<param name="emptyDataWarning">off</param>
+		<param name="chartTitle">Workforce Supply vs Demand</param>
 	</params>
 	
  	<format>
 		<param name="thousandsSeparator"><![CDATA[,]]></param>
 		<param name="decimalSeparator"><![CDATA[.]]></param>
-		<param name="decimalPlaces">2</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="decimalPlaces">1</param> <!-- by default is -1. -1 means no formatting -->
 		<param name="maxSymbols">30</param> <!-- max number of symbols in cell. by default is 10. -->
 		<param name="maxDecimalPlaces">2</param>
 		<param name="currencySymbol"></param> <!-- if you want format numbers as currency -->

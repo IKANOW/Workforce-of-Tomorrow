@@ -30,6 +30,7 @@
 	</buttons>
 	
 	<grid>
+		<total>Total</total><!--total is for OLAP data sources only-->
 		<grandTotal>Grand Total</grandTotal>
 	</grid>
 	

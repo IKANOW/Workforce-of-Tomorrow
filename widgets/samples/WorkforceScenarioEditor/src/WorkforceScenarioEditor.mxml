@@ -35,10 +35,10 @@
 			
 			private var _context:IWidgetContext;
 			
-			[Embed("com/ikanow/infinit/e/assets/images/icon_Plus.jpg")]
+			[Embed("com/ikanow/infinit/e/assets/images/plus.png")]
 			private var iconPlus:Class;
 			
-			[Embed("com/ikanow/infinit/e/assets/images/icon_Minus.jpg")]
+			[Embed("com/ikanow/infinit/e/assets/images/minus.png")]
 			private var iconMinus:Class;
 			
 			

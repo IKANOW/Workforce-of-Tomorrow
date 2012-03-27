@@ -1,6 +1,6 @@
 <config>
 	<dataSource type="CSV">
-		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT "FTEs", "Year", "BOD" FROM vw_workforce]]></filename>
+		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT * FROM vw_workforce_new]]></filename>
 	</dataSource>
 	<defaultSlice name="Default Report">
 		<axes>
@@ -8,6 +8,14 @@
 				<hierarchy>
 					<dimensionName>[Year]</dimensionName>
 					<hierarchyName>[Year].[Year]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+					<dimensionName>[BOD]</dimensionName>
+					<hierarchyName>[BOD].[BOD]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+					<dimensionName>[Workstream]</dimensionName>
+					<hierarchyName>[Workstream].[Workstream]</hierarchyName>
 				</hierarchy>
 				<hierarchy>
 					<dimensionName>[Series]</dimensionName>
@@ -20,7 +28,7 @@
 		</measures>
 	</defaultSlice>
 	
-	<style source="styles/skin.css"/>
+	<style source="styles/Workforce.css"/>
 
 	<params>
 		<param name="configuratorActive">off</param>

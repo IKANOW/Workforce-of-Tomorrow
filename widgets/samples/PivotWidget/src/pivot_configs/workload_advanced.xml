@@ -1,34 +1,44 @@
 <config>
 	<dataSource type="CSV">
-		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&output.format=csv&query=SELECT "FTEs", "Year", "BOD","Workstream", "Series" FROM vw_workload]]></filename>
+		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/lever/getresults/4e9c77ef17ef3523b657a890?wlwf=wl]]></filename>
 	</dataSource>
 	<defaultSlice name="Default Report">
 		<axes>
 			<axis name="rows">
 				<hierarchy>
-					<dimensionName>[Year]</dimensionName>
-					<hierarchyName>[Year].[Year]</hierarchyName>
+					<dimensionName>[year]</dimensionName>
+					<hierarchyName>[year].[year]</hierarchyName>
 				</hierarchy>
 				<hierarchy>
-					<dimensionName>[BOD]</dimensionName>
-					<hierarchyName>[BOD].[BOD]</hierarchyName>
+					<dimensionName>[workstream]</dimensionName>
+					<hierarchyName>[workstream].[workstream]</hierarchyName>
 				</hierarchy>
 				<hierarchy>
-					<dimensionName>[Workstream]</dimensionName>
-					<hierarchyName>[Workstream].[Workstream]</hierarchyName>
+					<dimensionName>[worktype]</dimensionName>
+					<hierarchyName>[worktype].[worktype]</hierarchyName>
 				</hierarchy>
 				<hierarchy>
-					<dimensionName>[Series]</dimensionName>
-					<hierarchyName>[Series].[Series]</hierarchyName>
+					<dimensionName>[bod]</dimensionName>
+					<hierarchyName>[bod].[bod]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+					<dimensionName>[series]</dimensionName>
+					<hierarchyName>[series].[series]</hierarchyName>
+				</hierarchy>
+			</axis>
+			<axis name="columns">
+				<hierarchy>
+					<dimensionName>[Data Column]</dimensionName>
+					<hierarchyName>[Data Column].[Data Column]</hierarchyName>
 				</hierarchy>
 			</axis>
 		</axes>
 		<measures>
-			<measure format="number">[Measures].[FTEs]</measure>
+			<measure format="number">[Measures].[Projected FTEs]</measure>
 		</measures>
 	</defaultSlice>
 	
-	<style source="http://infinite.wfot.ikanow.com/api/share/get/4f0300f723356dbe3abd02e3"/>
+	<style source="styles/Workload.css"/>
 
 	<params>
 		<param name="configuratorActive">off</param>
@@ -43,12 +53,13 @@
 		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f05d8c923358a8532f48db3</param>
 		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
 		<param name="emptyDataWarning">off</param>
+		<param name="chartTitle">Workload Advanced</param>
 	</params>
 	
  	<format>
 		<param name="thousandsSeparator"><![CDATA[,]]></param>
 		<param name="decimalSeparator"><![CDATA[.]]></param>
-		<param name="decimalPlaces">2</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="decimalPlaces">0</param> <!-- by default is -1. -1 means no formatting -->
 		<param name="maxSymbols">30</param> <!-- max number of symbols in cell. by default is 10. -->
 		<param name="maxDecimalPlaces">2</param>
 		<param name="currencySymbol"></param> <!-- if you want format numbers as currency -->

@@ -7,8 +7,8 @@ default {
 }
 
 grid {
-	defaultCellWidth: 30;
-	defaultCellHeight: 24;
+	defaultCellWidth: 100;
+	defaultCellHeight: 22;
 	topHeaderHeight: 24;
 	leftHeaderWidth: 28;
 	gridlineColor: #CCCCCC;
@@ -38,29 +38,30 @@ grid:pdf {
 
 sheetHeader {
 	lineColor: #CCCCCC;
-	fillColor: #F9F3D6;
+	fillColor: #dcdede;
 	textColor: #3d3d39;
 	fontSize: 12;
-	fontFamily: "Arial";
+	fontFamily: "Arial";	
 }
 
 sheetHeader:print {
 	lineColor: #CCCCCC;
-	fillColor: #F9F3D6;
+	fillColor: #dcdede;
 	textColor: #3d3d39;
 	fontSize: 8;
 }
 
 sheetHeader:pdf {
 	lineColor: #CCCCCC;
-	fillColor: #F9F3D6;
+	fillColor: #dcdede;
 	textColor: #3d3d39;
 	fontSize: 9;
 }
 
 .dataCell {
 	fontFamily: "Arial";
-	fontSize: 12;
+	fontSize: 14pt;
+	fontWeight: bold;
 	color: #000000; 
 	backgroundColor: #FFFFFF;
 	overColor: #91AA9D;
@@ -82,8 +83,9 @@ sheetHeader:pdf {
 
 .totalCell {
 	fontFamily: "Arial";
-	fontSize: 11;
+	fontSize: 14;
 	fontWeight: bold;
+	padding-left: 6px;
 }
 
 .totalCell:print {
@@ -102,7 +104,7 @@ sheetHeader:pdf {
 }
 
 .orangeCell {
-	backgroundColor: #f9f3d6;
+	backgroundColor: #dcdede;
 	color: #000000; 
 }
 
@@ -113,13 +115,12 @@ sheetHeader:pdf {
 
 .headerCell {
 	fontFamily: "Arial";
-	fontSize: 12;
+	fontSize: 14;
+	fontWeight:bold;
 	color: #FFFFFF; 
 	textIndent:4;
-	backfillColor: 0x000000;
-	backfillAlpha: 0.4;
-	backgroundColor: #004d7b;
-	overColor: #055789;
+	backgroundColor: #005291;
+	overColor: #066fac;
 	paddingLeft: 2;
 }
 
@@ -128,7 +129,7 @@ sheetHeader:pdf {
 	fontSize: 8;
 	color: #FFFFFF; 
 	textIndent:4;
-	backgroundColor: #004d7b;
+	backgroundColor: #005291;
 	paddingLeft: 2;
 }
 
@@ -137,7 +138,7 @@ sheetHeader:pdf {
 	fontSize: 9;
 	color: #FFFFFF; 
 	textIndent:4;
-	backgroundColor: #004d7b;
+	backgroundColor: #005291;
 	paddingLeft: 2;
 }
 
@@ -243,43 +244,43 @@ sheetHeader:pdf {
 }
 
 .level0 {
-	paddingLeft: 2;
+	paddingLeft: 20;
 }
 .level1 {
-	paddingLeft: 17;
+	paddingLeft: 35;
 }
 .level2 {
-	paddingLeft: 32;
+	paddingLeft: 50;
 }
 .level3 {
-	paddingLeft: 47;
+	paddingLeft: 68;
 }
 .level4 {
-	paddingLeft: 62;
+	paddingLeft: 86;
 }
 .level5 {
-	paddingLeft: 77;
+	paddingLeft: 104;
 }
 .level6 {
-	paddingLeft: 92;
-}
-.level7 {
-	paddingLeft: 107;
-}
-.level8 {
 	paddingLeft: 122;
 }
+.level7 {
+	paddingLeft: 140;
+}
+.level8 {
+	paddingLeft: 158;
+}
 .level9 {
-	paddingLeft: 137;
+	paddingLeft: 176;
 }
 .level10 {
-	paddingLeft: 152;
+	paddingLeft: 194;
 }
 .level11 {
-	paddingLeft: 167;
+	paddingLeft: 212;
 }
 .level12 {
-	paddingLeft: 182;
+	paddingLeft: 230;
 }
 
 chartsView {
@@ -291,8 +292,8 @@ chartsView {
 	chartViewTitleStyleName: chartTitle;
 	chartViewPieCbxStyleName: chartPieCbx;
 	chartViewMeasureCbxStyleName: chartMeasureCbx;
-	colors: [#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd], [#08519C, #3182BD, #6BAED6, #8dbdd6, #abcfe4, #c1d9f8], [#216d00, #4ca528, #67c563, #7add7f, #b3e6b8, #cbebce], [#980043, #DD1C77, #DF65B0, #C994C7, #D4B9DA, #F1EEF6], [#993404, #D95F0E, #FE9929, #FEC44F, #FEE391, #fbf9b8], [#006D2C, #2CA25F, #66C2A4, #99D8C9, #CCECE6, #e1f5f1], [#8c0a94, #c60bd1, #d460cd, #e87be2, #f995f3, #fed6fc], [#999900, #CCCC00, #DDDD33, #D0D066, #CCCC99, #efefb3], [#002d9d, #0056e3, #338aff, #6eafff, #a2bfff, #c4caff]; 
-	singleColors: #E41A1C, #377EB8, #4DAF4A, #e042a6, #FF7F00, #59BBAB, #b96bdd, #EDC200, #2491DE; 
+	colors:[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd], [#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd], [#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd],[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd],[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd],[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd],[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd],[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd],[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd],[#A50F15, #DE2D26, #FB6A4A, #FC9272, #FCBBA1, #ffdecd]; 
+	singleColors: #b13527, #b13527, #b13527, #b13527, #b13527, #b13527, #b13527, #b13527, #b13527, #b13527;
 	backgroundColor: #FFFFFF;
 	gridColor: #999999;
 }
@@ -320,25 +321,28 @@ chartsView {
 	chartTitle {
 		fontFamily: "Arial";
 		fontSize: 12;
-		fontWeight: bold;
+		fontWeight: 400;
 		color: #000000; 
 	}
 	
 	chartXLabel {
 		fontFamily: "Arial";
-		fontSize: 10;
+		fontSize: 14;
+		fontWeight: bold;
 		color: #000000; 
 	}
 
 	chartYLabel {
 		fontFamily: "Arial";
-		fontSize: 10;
+		fontSize: 14;
+		fontWeight: bold;
 		color: #000000; 
 	}
 
 	chartPieLabel {
 		fontFamily: "Arial";
-		fontSize: 10;
+		fontSize: 14;
+		fontWeight: bold;
 		color: #000000; 
 	}
 
@@ -380,7 +384,7 @@ configuratorCellCheckbox {
 	fontFamily: "Arial";
 	fontSize: 11;
 	color: #000000;
-	backgroundImage: Embed(source="styles/swf/skins.swf", symbol="LevelCellBgClass");
+	backgroundImage: Embed(source="styles/swf/skins.swf", symbol="LevelCellBgClass"); 
 	icon: Embed(source="styles/swf/skins.swf", symbol="EmptyCheckBoxClass");
 	iconChecked: Embed(source="styles/swf/skins.swf", symbol="EmptyCheckBoxClass");
 	backgroundAlpha: 0.5;

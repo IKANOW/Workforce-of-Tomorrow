@@ -2,10 +2,15 @@
 package
 {
 	
+	import com.ikanow.infinit.e.assets.skins.irs.TreeBodSkin;
+	import com.ikanow.infinit.e.assets.skins.irs.TreeYearSkin;
+	
+	import flash.display.Loader;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
+	import flash.net.URLRequest;
 	
 	import flashx.textLayout.formats.BackgroundColor;
 	
@@ -17,7 +22,9 @@ package
 	import mx.states.SetStyle;
 	import mx.states.State;
 	
+	import spark.components.BorderContainer;
 	import spark.components.HGroup;
+	import spark.components.Image;
 	import spark.components.Label;
 	import spark.components.Panel;
 	import spark.components.SkinnableContainer;
@@ -57,32 +64,38 @@ package
 						this.pct.visible = false;
 						this.pct.includeInLayout = false;
 						this.setStyle("color", "white");
+						this.setStyle("z-index", "99");
+						this.setStyle("fontWeight", "bold");
 						
 						if(this.itemXml.@pName.toString() == "Year")
 						{
 							this.begFte.setStyle("color", "white");
 							this.begFte.text = "Beginning FTEs";
-							this.begFte.setStyle("font-weight", "bold");
+							this.begFte.setStyle("fontWeight", "bold");
 							this.begFte.setStyle("fontSize", "10");
 							
 							this.projChange.setStyle("color", "white");
 							this.projChange.text = "Projected Change";
-							this.projChange.setStyle("font-weight", "bold");
+							this.projChange.setStyle("fontWeight", "bold");
 							this.projChange.setStyle("fontSize", "10");
 							this.projChange.setStyle("borderStyle", "solid");
 							this.projChange.setStyle("borderSides", "right");
 							
 							this.perChange.setStyle("color", "white");
 							this.perChange.text = "Percent Changed";
-							this.perChange.setStyle("font-weight", "bold");
+							this.perChange.setStyle("fontWeight", "bold");
 							this.perChange.setStyle("fontSize", "10");
 							
 							this.perHireLabel.setStyle("color", "white");
 							this.perHireLabel.text = "Percent to Hire";
-							this.perHireLabel.setStyle("font-weight", "bold");
+							this.perHireLabel.setStyle("fontWeight", "bold");
 							this.perHireLabel.setStyle("fontSize", "10");
+							this.perHireLabel.visible = true;
+							this.perHireLabel.includeInLayout = true;
 							
 							this.skin.setStyle("skinClass", Class(TreeYearSkin));
+							this.skin.visible = true;
+							this.setChildIndex(this.skin, 0);
 							
 							this.level = "topYear";
 							
@@ -97,6 +110,14 @@ package
 							this.perChange.includeInLayout == false;
 							this.perHireLabel.visible == false;
 							this.perHireLabel.includeInLayout == false;
+							this.skin.setStyle("skinClass", Class(TreeBodSkin));
+							this.setChildIndex(this.skin, 0);
+							this.skin.visible = true;
+							
+							this.begFte.text = "";
+							this.projChange.text = "";
+							this.perChange.text = "";
+							
 							
 							this.level = "topBod";
 						}
@@ -108,18 +129,24 @@ package
 				{
 					this.pct.visible = true;
 					this.setStyle("color", "black");
-					
+					this.setStyle("fontWeight", "normal");
 					
 					this.begFte.setStyle("color", "black");
+					this.begFte.setStyle("fontWeight", "normal");
 					
-					this.projChange.text = "0";
+					this.projChange.text = "";
 					this.projChange.setStyle("color", "black");
+					this.projChange.setStyle("fontWeight", "normal");
 					
-					this.perChange.text = "0";
+					this.perChange.text = "";
 					this.perChange.setStyle("color", "black");
+					this.perChange.setStyle("fontWeight", "normal");
 					
-					this.perHireLabel.visible == false;
-					this.perHireLabel.includeInLayout == false;
+					this.perHireLabel.visible = false;
+					this.perHireLabel.includeInLayout = false;
+					
+					this.skin.visible = false;
+					this.skin.includeInLayout = false;
 					
 					if (this.itemXml.@year.toString() == this.itemXml.@pName.toString())
 					{
@@ -152,6 +179,7 @@ package
 			skin.layout = hlay;
 			
 			addChild(skin);
+			
 			
 			hgroup = new HGroup();
 			hgroup.percentWidth = 100;
@@ -190,7 +218,6 @@ package
 			hgroup.addElement(perHireLabel);
 			
 			pct = new TextInput();
-			//pct.setStyle("skinClass", Class(com.ikanow.infinit.e.assets.skins.InfTextInputSkin));
 			pct.width = 40;
 			pct.height = 20;
 			pct.setStyle("textAlign", "center");
@@ -248,7 +275,7 @@ package
 		{
 			if (this.begFte != null)
 			{
-				this.begFte.x = super.width - 250;
+				this.begFte.x = super.width - 260;
 			}
 			if (this.projChange != null)
 			{
@@ -362,7 +389,7 @@ package
 							}
 							else
 							{
-								var projectedChange:Number = nextYearFTE - (oFTEVal + newVal);
+								var projectedChange:Number = nextYearFTE - (thisYearFTE);
 								bod.@projChange = projectedChange;
 								yearTotalProjChange += projectedChange;
 								
@@ -410,10 +437,12 @@ package
 			if (isNaN(thisyr))
 			{
 				updateAll();
+				updateAll();
 			}
 			else
 			{
 				updateAll(thisyr); //performance tweak
+				updateAll();
 			}
 		}
 	}

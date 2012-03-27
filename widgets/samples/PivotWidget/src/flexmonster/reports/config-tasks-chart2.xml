@@ -1,0 +1,74 @@
+<config>
+	<dataSource type="CSV">
+		<filename>reports/tasks-data.csv</filename>
+	</dataSource>
+	<defaultSlice name="Default Report">
+		<axes>
+		  <axis name="rows">
+			<hierarchy>
+			  <dimensionName>[Date]</dimensionName>
+			  <hierarchyName>[Date].[Date]</hierarchyName>
+			</hierarchy>
+			<drilled>
+			  <tuple member="1">1</tuple>
+			  <tuple member="77">77</tuple>
+			  <tuple member="150">150</tuple>
+			  <tuple member="218">218</tuple>
+			  <tuple member="2">2</tuple>
+			</drilled>
+		  </axis>
+		  <axis name="columns">
+			<hierarchy>
+			  <dimensionName>[Measures]</dimensionName>
+			  <hierarchyName>[Measures]</hierarchyName>
+			</hierarchy>
+		  </axis>
+		  <axis name="pages"/>
+		</axes>
+		<measures>
+			<measure availableAggregations="sum, average">[Measures].[Effort]</measure>			
+		</measures>
+	</defaultSlice>
+	
+	<style source="skins/grey.css"/>
+	
+	<params>
+		<param name="configuratorActive">off</param>
+		<param name="configuratorButton">off</param>
+		<param name="zoom">1</param>
+		<param name="viewType">charts</param>
+		<param name="chartType" activeMeasure="" pieDataIndex="0">line</param>
+		<param name="showHeaders">on</param>
+		<param name="fitGridlines">off</param>
+		<!--<param name="verticalColumns">on</param>-->
+		<param name="showHierarchies">off</param> 
+		<param name="showTotals">on</param>
+		<param name="showFilter">on</param>
+		<param name="showGrandTotals">on</param>
+		<param name="sorting">on</param>
+		<param name="expandAll">off</param>
+		<param name="saveReportURL"><![CDATA[http://localhost/flex_demos/save.php]]></param>
+		<param name="localSettingsURL">local.english.xml</param>
+		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
+		<param name="emptyDataWarning">off</param>
+		<param name="autoSizeScript">autoSize</param>
+		<param name="chartTitle"></param>
+		<param name="gridTitle"></param>
+		<param name="logoURL"></param>
+		<param name="showChartZeroValues">on</param>
+		<param name="jsFilterOpenHandler">onFilterOpen</param>
+		<param name="jsCellClickHandler">onCellClick</param>
+		<param name="jsCellDoubleClickHandler">onCellDoubleClick</param>
+	</params>
+	
+ 	<format name="effort">
+		<param name="thousandsSeparator"><![CDATA[ ]]></param>
+		<param name="decimalSeparator"><![CDATA[.]]></param>
+		<param name="decimalPlaces">2</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="maxSymbols">20</param> <!-- max number of symbols in cell. by default is 20. -->
+		<param name="currencySymbol">h</param> <!-- if you want format numbers as currency -->
+		<param name="currencySymbolAlign">right</param> <!-- left or right / by default is left -->
+		<param name="nullValue"><![CDATA[ ]]></param>
+	</format>
+		
+</config>

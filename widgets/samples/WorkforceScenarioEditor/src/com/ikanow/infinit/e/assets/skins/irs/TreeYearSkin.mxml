@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- SparkSkinning/mySkins/LinearBackgroundFillSkin.mxml -->
 <s:Skin 
 	xmlns:fx="http://ns.adobe.com/mxml/2009" 
 	xmlns:mx="library://ns.adobe.com/flex/mx" 
-	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:s="library://ns.adobe.com/flex/spark"
 	alpha.disabled="0.5">
 	
 	<fx:Metadata>
 		[HostComponent("spark.components.SkinnableContainer")]
+		//[Embed("com/ikanow/infinit/e/assets/images/title_snippet.jpg")]
+		//private var bg:Class;
 	</fx:Metadata> 
 	
 	<s:states>
@@ -23,17 +24,25 @@
 	</s:Rect>
 	
 	<!-- background fill -->
-	<s:Rect id="background" left="1" top="1" right="1" bottom="1">
-		<s:fill>
+	<s:Group id="background" left="1" top="1" right="1" bottom="1">
+		<!-- <s:fill>
 			<s:LinearGradient angle="90">
 				<s:entries>
 					<s:GradientEntry color="0x8E241D" ratio=".1"  />
 					<s:GradientEntry color="0xFFFFFF" ratio=".3"/>
 					<s:GradientEntry color="0x8E241D" ratio = ".6"  />
 				</s:entries>
-			</s:LinearGradient>            
-		</s:fill>
-	</s:Rect>
+			</s:LinearGradient>   
+			
+			
+		</s:fill> --> 
+		
+			<s:BitmapImage id="img"
+						   source="@Embed('com/ikanow/infinit/e/assets/images/dividerBar_01.png')"
+						   smooth="true"
+						   left="0" right="0"
+						   top="0" bottom="0" />
+	</s:Group>
 	
 	<s:Group id="contentGroup" left="10" right="10" top="10" bottom="10">
 		<s:layout>
