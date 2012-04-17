@@ -1,0 +1,33 @@
+Option Explicit
+
+'This Module will help format the workforce data sheets as .CSV files  -SMD
+Const maxRowCount = 500000
+'This is an arbitrary limit for the maximum number of data rows  -SMD
+
+Function exportToCSV()
+Dim currentCell As Range
+Dim i, j As Integer
+Dim csvFile As Excel.Workbook
+Dim numCols As Integer
+Dim sourceSheet As Excel.Worksheet
+Dim csvFileName As String
+
+
+Set sourceSheet = ActiveSheet
+numCols = CInt(InputBox("How many columns are in the table?", "Column Prompt"))
+Set csvFile = Workbooks.Add
+csvFile.Worksheets(1).Name = sourceSheet.Name
+
+For i = 2 To maxRowCount
+    If sourceSheet.Cells(i, 1) = Empty Then Exit For  ' Check for the end of the data rows   -SMD
+    For j = 1 To numCols
+        csvFile.Worksheets(1).Cells(i - 1, j) = sourceSheet.Cells(i, j).Value
+        csvFile.Worksheets(1).Cells(i - 1, j).NumberFormat = "@"
+    Next j
+Next i
+
+csvFileName = InputBox("CSV File Name:", "File Name", sourceSheet.Name)
+
+csvFile.SaveAs Filename:=csvFileName, FileFormat:=xlCSV, CreateBackup:=False
+csvFile.Close
+End Function
