@@ -13,3 +13,4 @@ UPDATE tbl_fte_multipliers SET series = concat('00', series) WHERE char_length(s
 UPDATE tbl_fte_multipliers SET series = concat('000', series) WHERE char_length(series) = 1;
 
 
+Healthcare analytics | Government cloud analysis | Data mining | Ikanow | Infinit.e
