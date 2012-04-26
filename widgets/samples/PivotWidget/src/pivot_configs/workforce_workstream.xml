@@ -22,11 +22,11 @@
 			</axis>
 		</axes>
 		<measures>
-			<measure format="number">[Measures].[FTEs Required]</measure>
+			<measure aggregation="sum" active="true">[Measures].[Scenario FTEs Realized]</measure>
 		</measures>
 	</defaultSlice>
 	
-	<style source="styles/Workforce.css"/>
+	<style source="http://infinite.wfot.ikanow.com/api/share/get/4f79ac0d2335af9507de9261"/>
 
 	<params>
 		<param name="configuratorActive">off</param>
@@ -38,7 +38,7 @@
 		<param name="fitGridlines">off</param>
 		<param name="showTotals">on</param>
 		<param name="showGrandTotals">on</param>
-		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f05d6b023358a8532f48da4</param>
+		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f04b24a23351f21cef6e8e5</param>
 		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
 		<param name="emptyDataWarning">off</param>
 		<param name="chartTitle">Workforce Workstream</param>

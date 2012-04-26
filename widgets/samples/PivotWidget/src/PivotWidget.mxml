@@ -64,8 +64,32 @@
 			private var _context:IWidgetContext;
 			private var titleArray:ArrayCollection = new ArrayCollection();
 			private var widgetOptions:Object = null;
-			private var API_SERVER:String = "http://infinite.wfot.ikanow.com/api/";
-			private var CONFIG_LOC:String = "http://infinite.wfot.ikanow.com/api/share/get/4efe62c02335b5055c00d4da";
+			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
+			//Supply Demand
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe252a2335b5055c00d486";
+			
+			//Workforce Advanced
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe2ada2335b5055c00d4ae";
+			
+			//Workforce BOD
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe621d2335b5055c00d4cb";
+			
+			//Workforce Workstream
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe624b2335b5055c00d4ce";
+			
+			//Workload Advanced
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe626b2335b5055c00d4d1";
+			
+			//Workload BOD
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe62b02335b5055c00d4d7";
+			
+			//Workload Workstream
+			private var CONFIG_LOC:String = API_SERVER + "share/get/4efe62c02335b5055c00d4da";
+			
+			//Local
+			//private var CONFIG_LOC:String = "pivot_configs/workforce_advanced.xml";
+			
+			private var HIDE_PIE_CHART = CONFIG_LOC == API_SERVER + "share/get/4efe252a2335b5055c00d486";
 			private var ORIGINAL_DATA_LOC:String = null;
 			private var scenarioIds:ArrayList = null;
 			private var scenarioId:String = "";
@@ -117,7 +141,6 @@
 				PopUpManager.centerPopUp(sl);
 				
 				sl.submit_button.addEventListener(MouseEvent.CLICK,newScenarioSelected);
-				//sl.myList.addEventListener(ItemClickEvent.ITEM_CLICK,newScenarioSelected);
 			}
 			
 			
@@ -140,8 +163,7 @@
 			
 			public function supportedExportFormats():ArrayCollection
 			{
-				var ac:ArrayCollection = new ArrayCollection();
-				return ac;
+				return null;
 			}
 			/**
 			 * function to build a pdf version of the widget
@@ -406,6 +428,16 @@
 				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=union") != -1)
 					LOAD_MODE = loaderMode.UNION;
 				}
+				
+				
+				if (HIDE_PIE_CHART == true)
+				{
+					displayAs.source = ["Display As...","Grid","Bar"];
+				}
+				else
+				{
+					displayAs.source = ["Display As...","Grid","Bar","Pie"];
+				}
 			}
 			
 			protected function pivotChart_renderCompleteHandler(event:Event):void
@@ -428,7 +460,7 @@
 										   selectedIndex="0" 
 										   change="setTimeout( export_changeHandler, 100, event )">
 				<components:dataProvider>
-					<s:ArrayList source="[Export To...,CSV,Image,PDF,Excel,Html]" />
+					<s:ArrayList source="[Export To...,CSV Raw,CSV,Image,PDF,Excel,Html]" />
 				</components:dataProvider>
 			</components:WidgetDropDownList>
 			
@@ -439,7 +471,7 @@
 										   change="setTimeout( view_changeHandler, 100, event )">
 				
 				<components:dataProvider>
-					<s:ArrayList source="[Display As...,Grid,Bar,Stack,Pie]" />
+					<s:ArrayList id="displayAs" source="[Display As...,Grid,Bar,Pie]" />
 				</components:dataProvider>
 			</components:WidgetDropDownList>
 			

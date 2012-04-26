@@ -34,7 +34,7 @@
 		</measures>
 	</defaultSlice>
 	
-	<style source="styles/Union.css"/>
+	<style source="http://infinite.wfot.ikanow.com/api/share/get/4f7990072335af9507de9205"/>
 
 	<params>
 		<param name="configuratorActive">off</param>
