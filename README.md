@@ -14,6 +14,8 @@ Main distributable code base for the Workforce of Tomorrow Initiative.  Contains
 
 ---- docs = Contains relevant documentation
 
+---- data = Contains validated data from the IRS that was placed into the system
+
 -- README = Read Me information pertaining to the project
 
 ### Installation Instructions
