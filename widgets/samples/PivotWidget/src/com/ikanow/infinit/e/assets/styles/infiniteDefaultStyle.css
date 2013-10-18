@@ -33,25 +33,3 @@ in the <fx:style> tags of your widget */
 	fontWeight: bold;
 	embedAsCFF: false;
 }
-s|global
-{
-	content-background-alpha: 1.0;
-	font-family: infiniteDefaultFont;
-}
-s|Label
-{
-	font-family: infiniteDefaultFont;
-}
-mx|Panel
-{
-	font-family: infiniteNonCFFFont;
-}
-mx|ToolTip
-{
-	font-family: infiniteNonCFFFont;
-}
-
-mx|Button
-{
-	font-family: infiniteNonCFFFont;
-}

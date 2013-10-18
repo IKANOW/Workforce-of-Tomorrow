@@ -5,7 +5,6 @@
 		   xmlns:pivot="com.flexmonster.pivot.*"
 		   xmlns:components="com.ikanow.infinit.e.widget.library.components.*"
 		   implements="com.ikanow.infinit.e.widget.library.widget.IWidget"
-		   creationComplete="widgetmodule2_creationCompleteHandler(event)"
 		   >
 	<fx:Style source="/com/ikanow/infinit/e/assets/styles/infiniteDefaultStyle.css" />
 	<fx:Style>
@@ -23,16 +22,14 @@
 	</fx:Style>
 	<fx:Script>
 		<![CDATA[
-			import com.flexmonster.pivot.data.consts.AggregationName;
 			import com.flexmonster.pivot.data.consts.SortType;
 			import com.flexmonster.pivot.events.CellClickEvent;
-			import com.flexmonster.pivot.model.config.vo.ReportValueObject;
-			import com.flexmonster.pivot.type.DestinationType;
-			import com.flexmonster.pivot.type.ExportOptions;
-			import com.flexmonster.pivot.type.ExportType;
+			import com.flexmonster.pivot.model.export.ExportType;
+			import com.flexmonster.pivot.model.report.DestinationType;
+			import com.flexmonster.pivot.model.report.vo.ReportValueObject;
 			import com.flexmonster.pivot.view.ViewType;
 			import com.flexmonster.pivot.view.charts.ChartType;
-			import com.flexmonster.pivot.view.grid.renderer.PivotGridCellRenderer;
+			import com.flexmonster.pivot.view.grid.vo.PivotGridCell;
 			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
 			import com.ikanow.infinit.e.widget.library.utility.URLEncoder;
 			import com.ikanow.infinit.e.widget.library.widget.IWidgetContext;
@@ -43,6 +40,7 @@
 			import mx.collections.XMLListCollection;
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
+			import mx.controls.Button;
 			import mx.controls.Tree;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
@@ -53,7 +51,6 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			import mx.utils.ObjectUtil;
 			
 			import org.alivepdf.pdf.PDF;
 			
@@ -65,6 +62,7 @@
 			private var titleArray:ArrayCollection = new ArrayCollection();
 			private var widgetOptions:Object = null;
 			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
+			[Bindable]
 			//Supply Demand
 			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe252a2335b5055c00d486";
 			
@@ -84,12 +82,16 @@
 			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe62b02335b5055c00d4d7";
 			
 			//Workload Workstream
-			private var CONFIG_LOC:String = API_SERVER + "share/get/4efe62c02335b5055c00d4da";
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/4efe62c02335b5055c00d4da";
+			
+			//Staffing Budget
+			//private var CONFIG_LOC:String = API_SERVER + "share/get/50b39e3d2335910cd750be22";
 			
 			//Local
-			//private var CONFIG_LOC:String = "pivot_configs/workforce_advanced.xml";
+			private var CONFIG_LOC:String = "pivot_configs/staffing_budget.xml";
 			
-			private var HIDE_PIE_CHART = CONFIG_LOC == API_SERVER + "share/get/4efe252a2335b5055c00d486";
+			private var HIDE_PIE_CHART:Boolean = (CONFIG_LOC == (API_SERVER + "share/get/4efe252a2335b5055c00d486"));
+
 			private var ORIGINAL_DATA_LOC:String = null;
 			private var scenarioIds:ArrayList = null;
 			private var scenarioId:String = "";
@@ -97,6 +99,7 @@
 			private var sl:scenarioLoader = new scenarioLoader();
 			
 			private var LOAD_MODE:String;
+			
 			
 			
 			/**
@@ -122,12 +125,14 @@
 			
 			private function launchPopUp(e:MouseEvent):void 
 			{
-				if (ORIGINAL_DATA_LOC == null && pivotChart.report != null)
+				if ( null == ORIGINAL_DATA_LOC && null != pivotChart.getReport() && null != pivotChart.getReport().filename)
 				{
-					ORIGINAL_DATA_LOC = pivotChart.report.filename;
+					ORIGINAL_DATA_LOC = pivotChart.getReport().filename;
 				}
 				
-				if (ORIGINAL_DATA_LOC.indexOf("wlwf=wf") != -1)
+				if (ORIGINAL_DATA_LOC.indexOf("wlwf=wfb") != -1)
+					LOAD_MODE = loaderMode.STAFFINGBUDGET;
+				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=wf") != -1)
 					LOAD_MODE = loaderMode.WORKFORCE;
 				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=wl") != -1)
 					LOAD_MODE = loaderMode.WORKLOAD;
@@ -234,12 +239,12 @@
 			
 			
 			
-			private function get swfFilePath():String {
-				return (FlexGlobals.topLevelApplication.parameters['swfFilePath'] == null) ? 'flexmonster/' : FlexGlobals.topLevelApplication.parameters['swfFilePath']; 
+			private function get componentFolder():String {
+				return (FlexGlobals.topLevelApplication.parameters['componentFolder'] == null) ? 'flexmonster/' : FlexGlobals.topLevelApplication.parameters['componentFolder']; 
 			}
 			
 			private function onGridClick(event:Event):void {
-				var cell:PivotGridCellRenderer = (event as CellClickEvent).cell;
+				var cell:PivotGridCell = (event as CellClickEvent).cell;
 				var rows:Array = [];
 				for (var i:int = 0; i < cell.rows.length; i++) {
 					var row:Object = cell.rows[i];
@@ -370,7 +375,7 @@
 					function(response:*):void {
 						Alert.show((response as String),'Report was saved!')
 					},
-					'http://infinite.wfot.iknow.com/flex/save.php'
+					'http://swat.iknow.com/flex/save.php'
 				);
 			}
 			
@@ -384,7 +389,7 @@
 				
 				if (ORIGINAL_DATA_LOC == null)
 				{
-					ORIGINAL_DATA_LOC = pivotChart.report.filename;
+					ORIGINAL_DATA_LOC = pivotChart.getReport().filename;
 				}
 				
 				if (LOAD_MODE == loaderMode.UNION)
@@ -407,26 +412,29 @@
 				
 				
 				var source_url:String  = ORIGINAL_DATA_LOC + append;	
-				var report:ReportValueObject = pivotChart.report;
+				var report:ReportValueObject = pivotChart.getReport();
 				report.filename = source_url;
-				pivotChart.report = report;
-				pivotChart.load();
+				pivotChart.setReport(report);
 			}
 
 			
 			protected function widgetmodule2_creationCompleteHandler(event:FlexEvent):void
 			{
-				if (ORIGINAL_DATA_LOC == null && pivotChart.report != null)
+				var report:ReportValueObject = pivotChart.getReport();
+				if (ORIGINAL_DATA_LOC == null && report != null)
 				{
-					ORIGINAL_DATA_LOC = pivotChart.report.filename;
+					ORIGINAL_DATA_LOC = report.filename;
 				
 				
-				if (ORIGINAL_DATA_LOC.indexOf("wlwf=wf") != -1)
-					LOAD_MODE = loaderMode.WORKFORCE;
-				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=wl") != -1)
-					LOAD_MODE = loaderMode.WORKLOAD;
-				else if (ORIGINAL_DATA_LOC.indexOf("wlwf=union") != -1)
-					LOAD_MODE = loaderMode.UNION;
+					if (ORIGINAL_DATA_LOC.indexOf("wlwf=wfb") != -1)
+						LOAD_MODE = loaderMode.STAFFINGBUDGET;
+					else if (ORIGINAL_DATA_LOC.indexOf("wlwf=wf") != -1)
+						LOAD_MODE = loaderMode.WORKFORCE;
+					else if (ORIGINAL_DATA_LOC.indexOf("wlwf=wl") != -1)
+						LOAD_MODE = loaderMode.WORKLOAD;
+					else if (ORIGINAL_DATA_LOC.indexOf("wlwf=union") != -1)
+						LOAD_MODE = loaderMode.UNION;
+					
 				}
 				
 				
@@ -439,12 +447,6 @@
 					displayAs.source = ["Display As...","Grid","Bar","Pie"];
 				}
 			}
-			
-			protected function pivotChart_renderCompleteHandler(event:Event):void
-			{
-				
-			}
-			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -460,8 +462,8 @@
 										   selectedIndex="0" 
 										   change="setTimeout( export_changeHandler, 100, event )">
 				<components:dataProvider>
-					<s:ArrayList source="[Export To...,CSV Raw,CSV,Image,PDF,Excel,Html]" />
-				</components:dataProvider>
+						<s:ArrayList source="[Export To...,CSV,Image,PDF,Excel,Html]" />
+					</components:dataProvider>
 			</components:WidgetDropDownList>
 			
 			<components:WidgetDropDownList id="viewDrop"
@@ -490,7 +492,6 @@
 		
 	</components:headerContent>
 	<mx:Canvas label="Switch View" width="100%" height="100%">
-		
-		<pivot:FlexPivotComponent id="pivotChart" width="100%" height="100%" x="1" styleName="chartsView" renderComplete="pivotChart_renderCompleteHandler(event)" swfFilePath="{this.swfFilePath}" configUrl="{this.CONFIG_LOC}"/>
+		<pivot:FlexPivotComponent id="pivotChart" width="100%" height="100%" x="1" styleName="chartsView" componentFolder="flexmonster/"  configUrl="{this.CONFIG_LOC}"/>
 	</mx:Canvas>
 </components:WidgetModule>

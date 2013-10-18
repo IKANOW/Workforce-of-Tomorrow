@@ -1,6 +1,6 @@
 <config>
 	<dataSource type="CSV">
-		<filename><![CDATA[http://infinite.wfot.ikanow.com/api/custom/lever/getresults/4e9c77ef17ef3523b657a890?wlwf=wl]]></filename>
+		<filename><![CDATA[http://swat.ikanow.com/api/custom/lever/getresults/4e9c77ef17ef3523b657a890?wlwf=wl]]></filename>
 	</dataSource>
 	<defaultSlice name="Default Report">
 		<axes>
@@ -22,7 +22,7 @@
 		</measures>
 	</defaultSlice>
 	
-	<style source="http://infinite.wfot.ikanow.com/api/share/get/4f7997a12335af9507de921c"/>
+	<style source="http://swat.ikanow.com/api/share/get/4f7997a12335af9507de921c"/>
 
 	<params>
 		<param name="configuratorActive">off</param>
@@ -34,7 +34,7 @@
 		<param name="fitGridlines">off</param>
 		<param name="showTotals">on</param>
 		<param name="showGrandTotals">on</param>
-		<param name="localSettingsURL">http://infinite.wfot.ikanow.com/api/share/get/4f04b24a23351f21cef6e8e5</param>
+		<param name="localSettingsURL">http://swat.ikanow.com/api/share/get/4f04b24a23351f21cef6e8e5</param>
 		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
 		<param name="emptyDataWarning">off</param>
 		<param name="chartTitle">Workload BOD</param>
