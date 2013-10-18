@@ -1,0 +1,145 @@
+/* CSS file */
+
+default {
+	fontFamily: "Tahoma";
+	fontSize: 11;
+	color: #000000;	
+}
+
+grid {
+	defaultCellWidth: 40;
+	defaultCellHeight: 24;
+	topHeaderHeight: 24;
+	leftHeaderWidth: 28;
+}
+.cellLink {
+	fontFamily: "Tahoma";
+	fontSize: 11;
+	color: #8CC6D9;
+	underline: true;
+	useHandCursor: true;
+}
+
+.hierarchyLink {
+	fontFamily: "Tahoma";
+	fontSize: 11;
+	color: #8CC6D9;
+	underline: true;
+}
+
+.dataCell {
+	fontFamily: "Tahoma";
+	fontSize: 11;
+	color: #000000; 
+	backgroundColor: #FFFFFF;
+}
+
+.totalCell {
+	fontSize: 10;
+	fontWeight: bold;
+}
+
+.headerCell {
+	fontFamily: "Tahoma";
+	fontSize: 11;
+	color: #FFFFFF;
+	textIndent:2;
+	backgroundColor: #366299;
+	paddingLeft: 2;
+}
+
+sheetHeader {
+	lineColor: #CCCCCC;
+	fillColor: #F0F4FB;
+	textColor: #366299;
+}
+
+selectionBox {
+	borderColor: #366299;
+	borderWidth: 1;
+	backgroundColor: #366299;
+	backgroundAlpha: 0.1;
+}
+
+.expandedHeaderCell {
+	textIndent: 2;
+	leftIcon: url:skins/grey/minus.png;
+	useHandCursor: true;
+}
+
+.collapsedHeaderCell {
+	textIndent: 2;
+	leftIcon: url:skins/grey/plus.png;
+	useHandCursor: true;
+}
+
+.filterCell {
+	textIndent: 2;
+	paddingLeft: 4;
+	leftIcon: url:skins/grey/dropdown.png;
+	useHandCursor: true;
+}
+
+.filteredCell {
+	rightIcon: url:skins/grey/filter.png;
+}
+
+.vSortCell {
+	overIcon: url:skins/grey/arrow-down-yellow.png;
+}
+.vSortAscCell {
+	rightIcon: url:skins/grey/arrow-up.png;
+}
+.vSortDescCell {
+	rightIcon: url:skins/grey/arrow-down.png;
+}
+.hSortCell {
+	overIcon: url:skins/grey/arrow-right-yellow.png;
+}
+.hSortAscCell {
+	rightIcon: url:skins/grey/arrow-left.png;
+}
+.hSortDescCell {
+	rightIcon: url:skins/grey/arrow-right.png;
+}
+
+.level0 {
+	paddingLeft: 4;
+}
+.level1 {
+	paddingLeft: 17;
+}
+.level2 {
+	paddingLeft: 32;
+}
+.level3 {
+	paddingLeft: 47;
+}
+.level4 {
+	paddingLeft: 62;
+}
+.level5 {
+	paddingLeft: 77;
+}
+.level6 {
+	paddingLeft: 92;
+}
+.level7 {
+	paddingLeft: 107;
+}
+.level8 {
+	paddingLeft: 122;
+}
+alert {
+	width: 420;
+	height: 180;
+	backfillColor: 0x000000;
+	backfillAlpha: 0.4;
+	backgroundColor: #FFFFFF;
+	backgroundAlpha: 1;
+	borderColor: #969dab;
+	borderWidth: 2;
+	borderAlpha: 1;
+	borderRound: 0;
+	icon: url:skins/icons/errorSign.png;
+}

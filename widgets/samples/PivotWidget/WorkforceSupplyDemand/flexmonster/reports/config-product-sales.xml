@@ -1,0 +1,233 @@
+<config>
+	<dataSource type="CSV">
+		<filename>reports/product-data.csv</filename>
+		<metadata external="false">
+			<dataLinksBaseURL>http://google.com/images?q=</dataLinksBaseURL>
+			
+			<tables>
+				<table> 
+					<hierarchyName>[Category].[Category]</hierarchyName>
+					<rows>
+						<row memberName="[Category].[Category].[Accessories]">
+							<id>_accessories_</id>
+							<url>Accessories</url>
+						</row>
+						<row memberName="[Category].[Category].[Bikes].[Road Bikes].[Road-650]">
+							<id>_road-650_</id>
+							<url>Road-650</url>
+						</row>
+						<row memberName="[Category].[Category].[Bikes]">
+							<id>_bikes</id>
+							<url>Bikes</url>
+						</row>
+						<row memberName="[Category].[Category].[Clothing]">
+							<id>_clothing_</id>
+							<url>Clothing</url>
+						</row>
+					</rows>
+				</table>
+				<table> 
+					<hierarchyName>[Date].[Date]</hierarchyName>
+					<rows>
+						<row memberName="[Date].[Date].[2003]">
+							<id>_2003_</id>
+							<url>2003</url>
+						</row>						
+					</rows>
+					<rows>
+						<row memberName="[Date].[Date].[Month].[2004/Q1/Jan]">
+							<id>_jan_</id>
+							<url>January</url>
+						</row>						
+					</rows>
+				</table>
+			</tables>
+			
+			<measures>	
+				<measure>
+					<measureName>[Measures].[Sales]</measureName>
+					<rows>
+						<row>
+							<tuple>
+								<member>
+									<hierarchyName>[Category].[Category]</hierarchyName>
+									<uniqueName>[Category].[Category].[Bikes].[Road Bikes].[Road-750]</uniqueName>
+								</member>
+								<member>
+									<hierarchyName>[Date].[Date]</hierarchyName>
+									<uniqueName>[Date].[Date].[Month].[2004/Q1/Jan]</uniqueName>
+								</member>
+							</tuple>
+							<attributes>
+								<url>Road-750 2004 Q1 Jan price</url>
+							</attributes>
+						</row>
+						<row>
+							<tuple>
+								<member>
+									<hierarchyName>[Category].[Category]</hierarchyName>
+									<uniqueName>[Category].[Category].[Bikes].[Road Bikes].[Road-750]</uniqueName>
+								</member>
+								<member>
+									<hierarchyName>[Date].[Date]</hierarchyName>
+									<uniqueName>[Date].[Date].[2003]</uniqueName>
+								</member>
+							</tuple>
+							<attributes>
+								<url>Road-750 2003 price</url>
+							</attributes>
+						</row>
+						<row>
+							<tuple>
+								<member>
+									<hierarchyName>[Category].[Category]</hierarchyName>
+									<uniqueName>[Category].[Category].[Bikes].[Road Bikes].[Road-750]</uniqueName>
+								</member>
+								<member>
+									<hierarchyName>[Date].[Date]</hierarchyName>
+									<uniqueName>[Date].[Date].[2004]</uniqueName>
+								</member>
+							</tuple>
+							<attributes>
+								<image>/images/silk/accept.png</image>
+							</attributes>
+						</row>
+						<row>
+							<tuple>
+								<member>
+									<hierarchyName>[Category].[Category]</hierarchyName>
+									<uniqueName>[Category].[Category].[Bikes].[Road Bikes]</uniqueName>
+								</member>
+								<member>
+									<hierarchyName>[Date].[Date]</hierarchyName>
+									<uniqueName>[Date].[Date].[2004]</uniqueName>
+								</member>
+							</tuple>
+							<attributes>
+								<image>/images/silk/star.png</image>
+							</attributes>
+						</row>						
+						<row>
+							<tuple>
+								<member>
+									<hierarchyName>[Date].[Date]</hierarchyName>
+									<uniqueName>[Date].[Date].[2003]</uniqueName>
+								</member>
+							</tuple>
+							<attributes>
+								<image>/images/silk/bell.png</image>
+							</attributes>
+						</row>
+						<row>
+							<tuple>
+								<member>
+									<hierarchyName>[Category].[Category]</hierarchyName>
+									<uniqueName>[Category].[Category].[Clothing]</uniqueName>
+								</member>
+								<member>
+									<hierarchyName>[Date].[Date]</hierarchyName>
+									<uniqueName>[Date].[Date].[2004]</uniqueName>
+								</member>
+							</tuple>
+							<attributes>
+								<url>Clothing 2004 price</url>
+							</attributes>
+						</row>
+					</rows>
+				</measure>
+			</measures>
+		</metadata>
+	</dataSource>
+	<defaultSlice name="Default Report">
+		<axes>
+			<axis name="rows">
+				<hierarchy sort="desc">
+					<dimensionName>[Category]</dimensionName>
+					<hierarchyName>[Category].[Category]</hierarchyName>
+				</hierarchy>
+				 <drilled>
+				  <tuple member="26">26</tuple>
+				  <tuple member="31">31</tuple>
+				</drilled>
+			</axis>
+			<axis name="columns">
+				<hierarchy>
+					<dimensionName>[Date]</dimensionName>
+					<hierarchyName>[Date].[Date]</hierarchyName>
+				</hierarchy>
+				<drilled>
+				  <tuple member="101">101</tuple>
+				</drilled>
+				<hierarchy>
+					<dimensionName>[Measures]</dimensionName>
+					<hierarchyName>[Measures]</hierarchyName>
+				</hierarchy>
+			</axis>
+		</axes>
+		<measures>
+			<measure aggregation="sum" format="currency" caption="Sales" grandTotalCaption="Sales" availableAggregations="sum, average, percent">[Measures].[Sales]</measure>
+		</measures>
+	</defaultSlice>
+	
+	<style source="skins/grey.css"/>
+	
+	<params>
+		<param name="configuratorActive">off</param>
+		<param name="configuratorButton">off</param>
+		<param name="zoom">1</param>
+		<param name="viewType">grid</param>
+		<param name="chartType">line</param>
+		<param name="showHeaders">on</param>
+		<param name="fitGridlines">off</param>
+		<!--<param name="verticalColumns">on</param>-->
+		<param name="showHierarchies">off</param> 
+		<param name="showTotals">on</param>
+		<param name="showFilter">on</param>
+		<param name="showGrandTotals">on</param>
+		<param name="sorting">on</param>
+		<param name="expandAll">off</param>
+		<param name="saveReportURL"><![CDATA[http://localhost/flex_demos/save.php]]></param>
+		<param name="localSettingsURL">local.english.xml</param>
+		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
+		<param name="emptyDataWarning">off</param>
+		<param name="chartTitle"></param>
+		<param name="gridTitle"></param>
+		<param name="logoURL"></param>
+		<param name="showChartZeroValues">on</param>
+	</params>
+	
+	<!--
+	<conditions>
+		<condition>
+			<![CDATA[if(more(cell(-1, 0)), "greenCell", "")]]>
+		</condition>
+		<condition>
+			<![CDATA[if(or(less(100), and(more(1000),less(10000))), "orangeCell", "")]]>
+		</condition>
+		<condition row="5">
+			<![CDATA[if(less(cell(0, 2)), "redCell", "")]]>
+		</condition>
+	</conditions>
+	-->	
+	
+ 	<format name="sales">
+		<param name="thousandsSeparator"><![CDATA[ ]]></param>
+		<param name="decimalSeparator"><![CDATA[.]]></param>
+		<param name="decimalPlaces">2</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="maxSymbols">20</param> <!-- max number of symbols in cell. by default is 20. -->
+		<param name="currencySymbol">$</param> <!-- if you want format numbers as currency -->
+		<param name="currencySymbolAlign">left</param> <!-- left or right / by default is left -->
+		<param name="nullValue"><![CDATA[]]></param>
+	</format>
+	
+	<format name="currency">
+		<param name="thousandsSeparator"><![CDATA[ ]]></param>
+		<param name="decimalSeparator"><![CDATA[.]]></param>
+		<param name="decimalPlaces">2</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="maxSymbols">20</param> <!-- max number of symbols in cell. by default is 20. -->
+		<param name="currencySymbol">$</param> <!-- if you want format numbers as currency -->
+		<param name="currencySymbolAlign">left</param> <!-- left or right / by default is left -->
+		<param name="nullValue"><![CDATA[]]></param>
+	</format>
+			
+</config>
