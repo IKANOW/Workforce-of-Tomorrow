@@ -1,0 +1,61 @@
+<config>
+	<dataSource type="CSV">
+		<filename><![CDATA[http://swat.ikanow.com/swat/view/sbsepivotData/4e9c77ef17ef3523b657a890?wlwf=wf]]></filename>
+	</dataSource>
+	<defaultSlice name="Default Report">
+		<axes>
+			<axis name="rows">
+				<hierarchy>
+					<dimensionName>[year]</dimensionName>
+					<hierarchyName>[year].[year]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+					<dimensionName>[grade]</dimensionName>
+					<hierarchyName>[grade].[grade]</hierarchyName>
+				</hierarchy>
+				<hierarchy>
+          			<dimensionName>[Measures]</dimensionName>
+          			<hierarchyName>[Measures]</hierarchyName>
+        		</hierarchy>
+			</axis>
+			<axis name="columns">
+				<hierarchy>
+					<dimensionName>[pod]</dimensionName>
+					<hierarchyName>[pod].[pod]</hierarchyName>
+				</hierarchy>
+			</axis>
+		</axes>
+		<measures>
+			<measure aggregation="sum" active="true">[Measures].[Scenario FTEs Realized]</measure>
+		</measures>
+	</defaultSlice>
+	
+	<style source="http://swat.ikanow.com/api/share/get/4f7999a62335af9507de9222"/>
+
+	<params>
+		<param name="configuratorActive">off</param>
+		<param name="configuratorButton">off</param>
+		<param name="viewType">charts</param>
+		<param name="chartType" activeMeasure="" pieDataIndex="0">bar</param>
+		<param name="showChartZeroValues">off</param>
+		<param name="showHeaders">on</param>
+		<param name="fitGridlines">off</param>
+		<param name="showHierarchies">true</param>
+		<param name="showTotals">on</param>
+		<param name="showGrandTotals">on</param>
+		<param name="localSettingsURL">http://swat.ikanow.com/api/share/get/4f04b24a23351f21cef6e8e5</param>
+		<param name="exportHTMLTemplateURL">styles/misc/export.html</param>
+		<param name="emptyDataWarning">off</param>
+		<param name="chartTitle">SBSE Workforce Pod</param>
+	</params>
+	
+ 	<format>
+		<param name="thousandsSeparator"><![CDATA[,]]></param>
+		<param name="decimalSeparator"><![CDATA[.]]></param>
+		<param name="decimalPlaces">0</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="maxSymbols">30</param> <!-- max number of symbols in cell. by default is 10. -->
+		<param name="maxDecimalPlaces">2</param>
+		<param name="currencySymbol"></param> <!-- if you want format numbers as currency -->
+		<param name="currencySymbolAlign">left</param> <!-- left or right / by default is left -->
+	</format>	
+</config>

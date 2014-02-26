@@ -1,1 +1,14 @@
 /bin-debug
+/Budget
+/WorkloadWorkstream
+/WorkloadBOD
+/WorkloadAdvanced
+/WorkforceWorkstream
+/WorkforceBOD
+/WorkforceAdvanced
+/WorkforceSupplyDemand
+/SBSE
+/SBSEWorkforcePOD
+/SBSESupplyDemand
+/SBSEWorkloadAdvanced
+/SBSEWorkforceAdvanced

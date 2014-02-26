@@ -8,6 +8,11 @@ function getDomainUrl() {
 	return domainURL;
 }
 
+function getIRSServerUrl() {
+	url = "http://swat.ikanow.com/swat/";
+    return url;
+}
+
 function getForgottenPasswordUrl() {
 	forgotUrl = getEndPointUrl() + "auth/forgotpassword"; //app.saas=false
 //	forgotUrl = getDomainUrl() + "FORGOT_PASSWORD_URL"; // app.saas=true

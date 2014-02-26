@@ -1,6 +1,6 @@
 <config>
 	<dataSource type="CSV">
-		<filename><![CDATA[http://swat.ikanow.com/api/custom/lever/getresults/4e9c77ef17ef3523b657a890?wlwf=wfb]]></filename>
+		<filename><![CDATA[http://swat.ikanow.com/swat/editor/pivotData/4e9c77ef17ef3523b657a890?wlwf=wfb]]></filename>
 	</dataSource>
 	<defaultSlice name="Default Report">
 		<axes>
@@ -26,7 +26,9 @@
 			</axis>
 		</axes>
 		<measures>
-			<measure format="number" aggregation="sum" active="true">[Measures].[Staffing Scenario Budget]</measure>
+			<measure format="currency" aggregation="sum" active="true">[Measures].[Staffing Scenario Budget]</measure>
+			<measure format="number" aggregation="sum" active="false">[Measures].[Scenario FTEs Realized]</measure>
+			<measure format="number" aggregation="sum" active="false">[Measures].[Baseline FTEs Realized]</measure>
 		</measures>
 	</defaultSlice>
 	
@@ -47,13 +49,21 @@
 		<param name="emptyDataWarning">off</param>
 		<param name="chartTitle">Staffing Budget</param>
 	</params>
-	
- 	<format name="number">
+	<format name="currency">
 		<param name="thousandsSeparator"><![CDATA[,]]></param>
 		<param name="decimalSeparator"><![CDATA[.]]></param>
 		<param name="decimalPlaces">0</param> <!-- by default is -1. -1 means no formatting -->
 		<param name="maxSymbols">30</param> <!-- max number of symbols in cell. by default is 10. -->
 		<param name="currencySymbol">$</param> <!-- if you want format numbers as currency -->
+		<param name="currencySymbolAlign">left</param> <!-- left or right / by default is left -->
+		<param name="nullValue"><![CDATA[ ]]></param>
+	</format>
+ 	<format name="number">
+		<param name="thousandsSeparator"><![CDATA[,]]></param>
+		<param name="decimalSeparator"><![CDATA[.]]></param>
+		<param name="decimalPlaces">0</param> <!-- by default is -1. -1 means no formatting -->
+		<param name="maxSymbols">30</param> <!-- max number of symbols in cell. by default is 10. -->
+		<param name="currencySymbol"></param> <!-- if you want format numbers as currency -->
 		<param name="currencySymbolAlign">left</param> <!-- left or right / by default is left -->
 		<param name="nullValue"><![CDATA[ ]]></param>
 	</format>

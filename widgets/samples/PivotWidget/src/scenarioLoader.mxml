@@ -5,9 +5,7 @@
 			   close="closeWindow(event)" preinitialize="titlewindow1_preinitializeHandler(event)">
 	<fx:Script>
 		<![CDATA[
-			import com.adobe.serialization.json.JSONEncoder;
-			import com.ikanow.infinit.e.widget.library.utility.JSONDecoder;
-			import com.ikanow.infinit.e.widget.library.utility.JSONEncoder;
+			import com.adobe.serialization.json.JSON;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -20,7 +18,7 @@
 			
 			import spark.events.IndexChangeEvent;
 			
-			private var API_SERVER:String = flash.external.ExternalInterface.call("getEndPointUrl");
+			private var SWAT_SERVER:String = flash.external.ExternalInterface.call("getIRSServerUrl");
 			private var dataProvider:ArrayCollection;
 			[Bindable]
 			public var LOAD_MODE:String;
@@ -46,7 +44,9 @@
 			
 			protected function scenarioServiceResultGlobal(event:ResultEvent):ArrayCollection
 			{					
-				var data:Object = com.ikanow.infinit.e.widget.library.utility.JSONDecoder.decode(event.result as String);
+				var jsonData:String = event.result as String;
+				var jd:com.adobe.serialization.json.JSONDecoder = new com.adobe.serialization.json.JSONDecoder( jsonData );
+				var data:Object = jd.getValue();
 				if ( data.response.success.toString() == "true" )
 				{
 					//name, uid, description, owner, updated
@@ -100,36 +100,42 @@
 			 
 			protected function titlewindow1_preinitializeHandler(event:FlexEvent):void
 			{
-				if (API_SERVER == null)
-					API_SERVER = flash.external.ExternalInterface.call("getEndPointUrl");
+				if (SWAT_SERVER == null)
+					SWAT_SERVER = flash.external.ExternalInterface.call("getIRSServerUrl");
 				
 				if (LOAD_MODE == loaderMode.STAFFINGBUDGET)
 				{
-					savedScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890";
+					savedScenarioService.url = SWAT_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890";
 					var params:Object = {};
 					params["dbid"] = "irs";
-					params["query"] = "SELECT  s.name || '  \n\t[ATB Increase: ' || round(w.atb_increase::numeric*100, 2) || '%  Award Percent: ' || round(w.award_pct::numeric*100, 2) || '%  Locality Pay Increase: ' || round(w.loc_pay_increase::numeric*100,2) || '%  Benefits: ' || round(w.benefits::numeric*100, 2) || '%]' AS name, s.uid, s.description, s.owner, s.updated FROM tbl_saved_scenarios s  LEFT OUTER JOIN (Select DISTINCT scenario_id, award_pct, benefits, atb_increase, loc_pay_increase FROM tbl_scenario_workforce_staffing_budget) w ON s.uid=w.scenario_id WHERE workforce=TRUE AND lever_table='tbl_scenario_workforce_staffing_budget' ORDER BY s.updated DESC";
+					params["query"] = "SELECT  s.name || '  \n\t[ATB Increase: ' || round(w.atb_increase::numeric*100, 2) || '%  Award Percent: ' || round(w.award_pct::numeric*100, 2) || '%  Locality Pay Increase: ' || round(w.loc_pay_increase::numeric*100,2) || '%  Benefits: ' || round(w.benefits::numeric*100, 2) || '%]' AS name, s.uid, s.description, s.owner, s.updated FROM tbl_saved_scenarios s  LEFT OUTER JOIN (Select DISTINCT scenario_id, award_pct, benefits, atb_increase, loc_pay_increase FROM tbl_scenario_workforce_staffing_budget) w ON s.uid=w.scenario_id WHERE show='workforce' AND lever_table='tbl_scenario_workforce_staffing_budget' ORDER BY s.updated DESC";
 					
 					savedScenarioService.method = "POST";
 					savedScenarioService.contentType = "application/json";
-					savedScenarioService.send(com.ikanow.infinit.e.widget.library.utility.JSONEncoder.encode(params));
+					var je:com.adobe.serialization.json.JSONEncoder = new com.adobe.serialization.json.JSONEncoder( params );
+					savedScenarioService.send(je.getString());
 				}
 				else if (LOAD_MODE == loaderMode.WORKFORCE)
 				{
-					savedScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workforce=TRUE AND lever_table='tbl_scenario_workforce_hiring_percentage'";
+					savedScenarioService.url = SWAT_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE show='workforce' AND lever_table='tbl_scenario_workforce_hiring_percentage'";
 					savedScenarioService.send();
 				}
 				else if (LOAD_MODE == loaderMode.WORKLOAD)
 				{
-					savedScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workload=TRUE";
+					savedScenarioService.url = SWAT_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE show='workload'";
 					savedScenarioService.send();
 				}
 				else if (LOAD_MODE == loaderMode.UNION)
 				{
-					savedUnionWorkforceScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workforce=TRUE AND lever_table='tbl_scenario_workforce_hiring_percentage'";
+					savedUnionWorkforceScenarioService.url = SWAT_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE show='workforce' AND lever_table='tbl_scenario_workforce_hiring_percentage'";
 					savedUnionWorkforceScenarioService.send();
-					savedUnionWorkloadScenarioService.url = API_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE workload=TRUE";
+					savedUnionWorkloadScenarioService.url = SWAT_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE show='workload'";
 					savedUnionWorkloadScenarioService.send();
+				}
+				else if (LOAD_MODE == loaderMode.SBSE_WORKFORCE || LOAD_MODE == loaderMode.SBSE_UNION)
+				{
+					savedScenarioService.url = SWAT_SERVER + "custom/rdbms/getresults/4e9c77ef17ef3523b657a890?dbid=irs&query=SELECT name, uid, description, owner, updated FROM tbl_saved_scenarios WHERE show='ro_workforce'";
+					savedScenarioService.send();
 				}
 				
 			}

@@ -1,6 +1,6 @@
 <config>
 	<dataSource type="CSV">
-		<filename><![CDATA[http://swat.ikanow.com/api/custom/lever/getresults/4e9c77ef17ef3523b657a890?wlwf=wfb]]></filename>
+		<filename><![CDATA[http://swat.ikanow.com/swat/view/pivotData/4e9c77ef17ef3523b657a890?wlwf=wfb]]></filename>
 	</dataSource>
 	<defaultSlice name="Default Report">
 		<axes>

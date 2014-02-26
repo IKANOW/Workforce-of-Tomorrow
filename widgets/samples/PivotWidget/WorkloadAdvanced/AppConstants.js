@@ -1,5 +1,5 @@
 function getEndPointUrl() {
-	url = "http://infinite.wfot.ikanow.com/api/";
+	url = "http://swat.ikanow.com/api/";
     return url;
 }
 

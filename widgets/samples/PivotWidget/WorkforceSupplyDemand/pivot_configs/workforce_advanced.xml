@@ -25,6 +25,7 @@
 		</axes>
 		<measures>
 			<measure format="number" aggregation="sum" active="true">[Measures].[Scenario FTEs Realized]</measure>
+			<measure format="number" aggregation="sum" active="false">[Measures].[Baseline FTEs Realized]</measure>
 		</measures>
 	</defaultSlice>
 	
